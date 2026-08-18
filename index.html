@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NETI 新能源人格测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2E7D32;
+            --secondary: #FFB300;
+            --accent: #1976D2;
+            --bg: linear-gradient(135deg, #E8F5E9 0%, #FFF8E1 50%, #E3F2FD 100%);
+            --card-bg: rgba(255,255,255,0.95);
+            --text: #263238;
+            --text2: #546E7A;
+            --shadow: 0 4px 20px rgba(0,0,0,0.1);
+            --radius: 16px;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg); min-height: 100vh; color: var(--text); line-height: 1.6;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+        /* 首页 */
+        .home-page {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; text-align: center; padding: 40px 20px;
+        }
+        .logo-icon {
+            width: 120px; height: 120px; background: linear-gradient(135deg, #4CAF50, #FFC107, #2196F3);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 60px; margin: 0 auto 20px; box-shadow: 0 8px 32px rgba(76,175,80,0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+        .main-title {
+            font-size: 3rem; font-weight: 800;
+            background: linear-gradient(135deg, #2E7D32, #1976D2); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px;
+        }
+        .sub-title { font-size: 1.2rem; color: var(--text2); margin-bottom: 40px; }
+        .start-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border: none;
+            padding: 18px 60px; font-size: 1.3rem; font-weight: 600; border-radius: 50px;
+            cursor: pointer; transition: all 0.3s; box-shadow: 0 6px 24px rgba(76,175,80,0.4);
+        }
+        .start-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(76,175,80,0.5); }
+
+        /* 测试页 */
+        .test-page { display: none; padding: 20px 0; }
+        .progress-bar { background: #e0e0e0; height: 8px; border-radius: 4px; margin-bottom: 30px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #4CAF50, #8BC34A); height: 100%; transition: width 0.3s; border-radius: 4px; }
+        .progress-text { text-align: center; color: var(--text2); margin-bottom: 20px; font-size: 0.95rem; }
+        .question-card {
+            background: var(--card-bg); border-radius: var(--radius); padding: 35px;
+            margin-bottom: 25px; box-shadow: var(--shadow); animation: slideIn 0.4s ease;
+        }
+        @keyframes slideIn { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+        .question-number {
+            display: inline-block; background: linear-gradient(135deg, #4CAF50, #66BB6A);
+            color: white; padding: 6px 16px; border-radius: 20px; font-size: 0.9rem;
+            font-weight: 600; margin-bottom: 15px;
+        }
+        .dimension-tag {
+            display: inline-block; background: #E3F2FD; color: #1976D2; padding: 4px 12px;
+            border-radius: 12px; font-size: 0.85rem; margin-left: 10px;
+        }
+        .question-text { font-size: 1.15rem; font-weight: 600; color: var(--text); margin-bottom: 25px; line-height: 1.7; }
+        .options { display: flex; flex-direction: column; gap: 14px; }
+        .option-btn {
+            background: white; border: 2px solid #e0e0e0; padding: 18px 24px; border-radius: 12px;
+            cursor: pointer; text-align: left; font-size: 1rem; transition: all 0.25s; position: relative;
+        }
+        .option-btn:hover { border-color: #4CAF50; background: #F1F8E9; transform: translateX(5px); }
+        .option-btn.selected { border-color: #4CAF50; background: #E8F5E9; box-shadow: 0 4px 12px rgba(76,175,80,0.2); }
+        .option-label {
+            display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center;
+            background: #f5f5f5; border-radius: 50%; font-weight: 700; margin-right: 12px;
+            color: var(--text2); transition: all 0.25s;
+        }
+        .option-btn.selected .option-label { background: #4CAF50; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 30px; gap: 15px; }
+        .nav-btn {
+            padding: 14px 32px; border: none; border-radius: 12px; font-size: 1rem;
+            font-weight: 600; cursor: pointer; transition: all 0.3s;
+        }
+        .nav-btn.prev { background: #f5f5f5; color: var(--text); }
+        .nav-btn.next { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; box-shadow: 0 4px 16px rgba(76,175,80,0.3); }
+        .nav-btn:hover:not(:disabled) { transform: translateY(-2px); }
+        .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* 结果页 */
+        .result-page { display: none; padding: 20px 0 40px; }
+        .result-header { text-align: center; margin-bottom: 40px; animation: fadeInUp 0.8s ease; }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+        .result-badge {
+            display: inline-block; background: linear-gradient(135deg, #FF6B6B, #FFE66D, #4ECDC4);
+            color: white; padding: 8px 24px; border-radius: 25px; font-size: 0.95rem;
+            font-weight: 600; margin-bottom: 20px; letter-spacing: 2px;
+        }
+        .result-name {
+            font-size: 2.8rem; font-weight: 900;
+            background: linear-gradient(135deg, #2E7D32, #1976D2, #FF8F00);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px;
+        }
+        .result-code { font-size: 1.3rem; color: var(--text2); font-weight: 600; letter-spacing: 3px; margin-bottom: 10px; }
+        .result-fullname { font-size: 1.1rem; color: var(--accent); font-weight: 500; margin-bottom: 10px; }
+        .result-tech {
+            display: inline-block; background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            color: #1565C0; padding: 8px 20px; border-radius: 20px; font-size: 1rem;
+            font-weight: 600; margin-bottom: 20px;
+        }
+        .similarity-badge {
+            display: inline-block; background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+            color: #2E7D32; padding: 6px 16px; border-radius: 15px; font-size: 0.9rem;
+            font-weight: 600; margin-left: 10px;
+        }
+        .result-quote {
+            font-size: 1.35rem; font-style: italic; color: var(--text); font-weight: 600;
+            margin: 25px auto 30px; max-width: 600px; position: relative; padding: 0 25px;
+        }
+        .result-quote::before, .result-quote::after {
+            content: '"'; font-size: 2.5rem; color: #FFB300; position: absolute; top: -10px;
+        }
+        .result-quote::before { left: 0; } .result-quote::after { right: 0; }
+        .result-image {
+            width: 100%; max-width: 380px; height: auto; border-radius: var(--radius);
+            box-shadow: var(--shadow); margin: 0 auto 35px; display: block;
+        }
+        .result-card {
+            background: var(--card-bg); border-radius: var(--radius); padding: 35px;
+            margin-bottom: 25px; box-shadow: var(--shadow); animation: fadeInUp 0.8s ease backwards;
+        }
+        .result-card:nth-child(2){animation-delay:0.1s} .result-card:nth-child(3){animation-delay:0.2s}
+        .result-card:nth-child(4){animation-delay:0.3s} .result-card:nth-child(5){animation-delay:0.4s}
+        .card-title {
+            font-size: 1.4rem; font-weight: 700; color: var(--primary); margin-bottom: 20px;
+            padding-bottom: 12px; border-bottom: 3px solid #E8F5E9; display: flex; align-items: center; gap: 10px;
+        }
+        .card-title .icon { font-size: 1.6rem; }
+        .card-content { font-size: 1.05rem; line-height: 1.9; color: var(--text); }
+        .card-content p { margin-bottom: 15px; }
+        .partner-section {
+            background: linear-gradient(135deg, #FFF3E0, #FFE0B2); border-left: 4px solid #FF9800;
+            padding: 20px 25px; border-radius: 12px; margin-top: 15px;
+        }
+        .partner-name { font-size: 1.2rem; font-weight: 700; color: #E65100; margin-bottom: 8px; }
+        .partner-desc { color: var(--text2); line-height: 1.7; }
+
+        /* 附录折叠 */
+        .appendix-section { margin-top: 40px; animation: fadeInUp 0.8s ease 0.5s backwards; }
+        .appendix-toggle {
+            background: linear-gradient(135deg, #37474F, #455A64); color: white; border: none;
+            padding: 18px 30px; border-radius: var(--radius); font-size: 1.1rem; font-weight: 600;
+            cursor: pointer; width: 100%; display: flex; justify-content: space-between;
+            align-items: center; transition: all 0.3s; box-shadow: var(--shadow);
+        }
+        .appendix-toggle:hover { transform: translateY(-2px); }
+        .arrow { transition: transform 0.3s; font-size: 1.3rem; }
+        .appendix-toggle.open .arrow { transform: rotate(180deg); }
+        .appendix-content {
+            display: none; background: var(--card-bg); border-radius: 0 0 var(--radius) var(--radius);
+            padding: 35px; box-shadow: var(--shadow); margin-top: -10px; animation: slideDown 0.4s ease;
+        }
+        @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+        .appendix-content.show { display: block; }
+        .letter-title { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; text-align: center; }
+        .letter-content { font-size: 1.05rem; line-height: 2; color: var(--text); text-align: justify; }
+        .letter-signature { text-align: right; margin-top: 25px; font-style: italic; color: var(--text2); font-weight: 600; }
+
+        /* 加载遮罩 */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.95); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 1000;
+        }
+        .loading-spinner {
+            width: 60px; height: 60px; border: 4px solid #e0e0e0; border-top-color: #4CAF50;
+            border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .loading-text { margin-top: 20px; font-size: 1.1rem; color: var(--text2); }
+        .hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .main-title { font-size: 2.2rem; }
+            .question-card { padding: 25px; }
+            .result-name { font-size: 2.2rem; }
+            .result-card { padding: 25px; }
+            .nav-btn { flex: 1; padding: 12px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 首页 -->
+<div class="home-page" id="homePage">
+    <div class="container">
+        <div class="logo-icon">⚡</div>
+        <h1 class="main-title">NETI</h1>
+        <p class="sub-title">新能源人格测试<br><span style="font-size:0.9rem;color:#78909c;">New Energy Type Indicator</span></p>
+        <p style="color:var(--text2);max-width:500px;margin-bottom:40px;">
+            你是储能派还是发电派？你的能量如何流转？<br>30道题目，测出你的专属新能源人格
+        </p>
+        <button class="start-btn" onclick="startTest()">开始测试</button>
+    </div>
+</div>
+
+<!-- 测试页 -->
+<div class="test-page" id="testPage">
+    <div class="container">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-text" id="progressText">第 1 题 / 共 30 题</div>
+        <div id="questionContainer"></div>
+        <div class="nav-buttons">
+            <button class="nav-btn prev" id="prevBtn" onclick="prevQuestion()" disabled>上一题</button>
+            <button class="nav-btn next" id="nextBtn" onclick="nextQuestion()">下一题</button>
+        </div>
+    </div>
+</div>
+
+<!-- 结果页 -->
+<div class="result-page" id="resultPage">
+    <div class="container">
+        <div class="result-header">
+            <div class="result-badge">你的 NETI 人格类型是</div>
+            <h1 class="result-name" id="resultName"></h1>
+            <div class="result-code" id="resultCode"></div>
+            <img class="result-image" id="resultImage" src="" alt="人格画像">
+            <div class="result-fullname" id="resultFullname"></div>
+            <div class="result-tech" id="resultTech"></div>
+            <span class="similarity-badge" id="similarityBadge"></span>
+            <p class="result-quote" id="resultQuote"></p>
+        </div>
+        <div class="result-card">
+            <h2 class="card-title">核心人设画像</h2>
+            <div class="card-content" id="personalityDesc"></div>
+        </div>
+
+        <!-- 详细维度评分 -->
+        <div class="appendix-section" style="margin-top:25px;margin-bottom:25px;">
+            <button class="appendix-toggle" id="scoreToggle" onclick="toggleScore()">
+                <span>详细维度评分</span>
+                <span class="arrow">&#9660;</span>
+            </button>
+            <div class="appendix-content" id="scoreContent">
+                <div id="dimensionScoreContent"></div>
+            </div>
+        </div>
+
+        <div class="result-card">
+            <h2 class="card-title">对应技术科普</h2>
+            <div class="card-content" id="techInfo"></div>
+        </div>
+        <div class="result-card">
+            <h2 class="card-title">最适合的搭档</h2>
+            <div class="partner-section">
+                <div class="partner-name" id="partnerName"></div>
+                <div class="partner-desc" id="partnerDesc"></div>
+            </div>
+        </div>
+        <!-- 附录 -->
+        <div class="appendix-section">
+            <button class="appendix-toggle" id="appendixToggle" onclick="toggleAppendix()">
+                <span> 作者有话说</span><span class="arrow">▼</span>
+            </button>
+            <div class="appendix-content" id="appendixContent">
+                <h3 class="letter-title">亲爱的能源同行者——</h3>
+                <div class="letter-content">
+                    <p>无论你测出来是"稳如泰山"还是"核聚变梦想家"，请记住：这16种人格没有优劣之分，就像电网里没有"谁比谁更重要"。</p>
+                    <p>储能的人不焦虑——因为他们在低谷时积蓄势能，相信总有一天会升上去。</p>
+                    <p>发电的人不胆怯——因为他们生来就是要发光的，哪怕今天没有风、没有光。</p>
+                    <p>你不需要成为所有人，你只需要成为最适合电网的那个"节点"。你的"电压"可能忽高忽低，你的"频率"可能偶尔跑偏，但没关系——</p>
+                    <p><strong>只要还在运转，你就已经为这个世界贡献了能量。</strong></p>
+                    <p style="margin-top:20px;">愿你的能量，流向它该去的地方。</p>
+                </div>
+                <div class="letter-signature">—— NEA全体成员 敬上</div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<!-- 加载遮罩 -->
+<div class="loading-overlay hidden" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">正在分析你的能量图谱...</div>
+</div>
+
+<script>
+// ==================== 题库数据 ====================
+const questions = [
+    // EO1 输出倾向
+    { dim:"EO1 输出倾向", model:"能量倾向", q:"在社交场合（如聚会、群聊）中，你通常是什么状态？",
+      opts:[{l:"A",t:"安静倾听，很少主动挑起话题",s:"L"},{l:"B",t:"看情况，有时活跃、有时隐身",s:"M"},{l:"C",t:"我就是「气氛组」，喜欢主动抛梗带节奏",s:"H"}] },
+    { dim:"EO1 输出倾向", model:"能量倾向", q:"朋友心情低落时，你更倾向于怎么做？",
+      opts:[{l:"A",t:"默默陪着，提供安静稳定的能量场",s:"L"},{l:"B",t:"温和地安慰几句，适度表达关心",s:"M"},{l:"C",t:"使出浑身解数逗对方笑，恨不得把自己的能量全灌给对方",s:"H"}] },
+    // EO2 影响半径
+    { dim:"EO2 影响半径", model:"能量倾向", q:"你平时刷手机/看新闻时，更关注哪类内容？",
+      opts:[{l:"A",t:"个人成长、吃喝玩乐、身边小事",s:"L"},{l:"B",t:"身边朋友/同事的动态和小圈子新闻",s:"M"},{l:"C",t:"全球大事、宏观经济、人类未来命运",s:"H"}] },
+    { dim:"EO2 影响半径", model:"能量倾向", q:"在团队中你更常扮演什么角色？",
+      opts:[{l:"A",t:"专注做好自己手头任务的「执行者」",s:"L"},{l:"B",t:"连接组内成员、传递信息的「枢纽站」",s:"M"},{l:"C",t:"代表团队对外发声、争取资源的「外交官」",s:"H"}] },
+    // EO3 能量密度
+    { dim:"EO3 能量密度", model:"能量倾向", q:"你更擅长哪种类型的工作/学习模式？",
+      opts:[{l:"A",t:"长跑型——持续低功率输出，需要长时间专注才能进入状态",s:"L"},{l:"B",t:"稳健型——功率适中，能扛住日常负荷，偶尔加加班也行",s:"M"},{l:"C",t:"爆发型——短时超高功率，DDL前一夜创造奇迹",s:"H"}] },
+    { dim:"EO3 能量密度", model:"能量倾向", q:"如果需要完成一项大任务，你的首选策略是？",
+      opts:[{l:"A",t:"每天做一点，匀速推进，绝不突击",s:"L"},{l:"B",t:"前松后紧，最后阶段稍微冲刺一下",s:"M"},{l:"C",t:"前期不动，最后时刻集中所有能量一波推平",s:"H"}] },
+    // RE1 调峰能力
+    { dim:"RE1 调峰能力", model:"调节风格", q:"当你精心规划的一天被突发状况彻底打乱时，你的反应是？",
+      opts:[{l:"A",t:"直接摆烂，今天算我倒霉，随它去吧",s:"L"},{l:"B",t:"有点烦躁，但勉强调整一下顺序应付过去",s:"M"},{l:"C",t:"立刻启动「应急预案」，把最重要的任务挪到最佳时间，反向掌控局面",s:"H"}] },
+    { dim:"RE1 调峰能力", model:"调节风格", q:"面对时间/精力严重不足的「用电荒」时，你通常？",
+      opts:[{l:"A",t:"手忙脚乱，硬撑着把所有事情做完",s:"L"},{l:"B",t:"砍掉一些不重要的任务，先保核心",s:"M"},{l:"C",t:"主动优化流程，把高耗能任务安排在精力巅峰期，实现完美削峰填谷",s:"H"}] },
+    // RE2 转换效率
+    { dim:"RE2 转换效率", model:"调节风格", q:"做完一个复杂的项目后，你更在意什么？",
+      opts:[{l:"A",t:"过程中的成长和体验，结果好不好无所谓",s:"L"},{l:"B",t:"过程和结果都重要，差不多就行",s:"M"},{l:"C",t:"结果就是一切，没达到目标等于白干",s:"H"}] },
+    { dim:"RE2 转换效率", model:"调节风格", q:"你更欣赏哪种人生态度？",
+      opts:[{l:"A",t:"人生重在体验，不问得失，享受沿途风景",s:"L"},{l:"B",t:"既要开心，也要有点收获",s:"M"},{l:"C",t:"投入就必须有回报，绝不接受低效的努力",s:"H"}] },
+    // RE3 稳定系数
+    { dim:"RE3 稳定系数", model:"调节风格", q:"你近期的情绪状态更像以下哪种？",
+      opts:[{l:"A",t:"过山车——上一秒开心，下一秒emo，起伏很大",s:"L"},{l:"B",t:"偶尔有波动，但总体可控",s:"M"},{l:"C",t:"极其稳定，基本没什么能影响我的心态，即使内心崩溃表面也看不出",s:"H"}] },
+    { dim:"RE3 稳定系数", model:"调节风格", q:"周围环境很嘈杂、混乱时，你的工作状态会？",
+      opts:[{l:"A",t:"心态爆炸，完全没法集中注意力",s:"L"},{l:"B",t:"受影响，但戴上耳机还能凑合",s:"M"},{l:"C",t:"稳如泰山，内心毫无波澜，该干嘛干嘛",s:"H"}] },
+    // IM1 主动-被动
+    { dim:"IM1 主动-被动", model:"交互模式", q:"遇到一个你很感兴趣的机会（如新项目、新朋友），你通常？",
+      opts:[{l:"A",t:"默默观望，等别人来邀请我",s:"L"},{l:"B",t:"给点暗示，试探一下对方的反应",s:"M"},{l:"C",t:"立刻主动出击，像风机追着风一样跑过去抓住它",s:"H"}] },
+    { dim:"IM1 主动-被动", model:"交互模式", q:"你去一个陌生的地方旅行/探索，更像哪种状态？",
+      opts:[{l:"A",t:"老老实实跟着攻略走，被动接收信息",s:"L"},{l:"B",t:"随机应变，看到什么玩什么",s:"M"},{l:"C",t:"像探险家一样主动搜索隐藏地点，哪里有「风」就往哪里钻",s:"H"}] },
+    // IM2 独立-依赖
+    { dim:"IM2 独立-依赖", model:"交互模式", q:"在工作中，你更喜欢哪种协作模式？",
+      opts:[{l:"A",t:"独自美丽，我能独立搞定一切，不喜欢被打扰",s:"L"},{l:"B",t:"需要时合作，不需要时各干各的",s:"M"},{l:"C",t:"我必须有团队/外部资源才能正常运转，一个人完全没动力",s:"H"}] },
+    { dim:"IM2 独立-依赖", model:"交互模式", q:"遇到技术或生活上的难题，你的第一反应是？",
+      opts:[{l:"A",t:"自己死磕到底，绝不求人",s:"L"},{l:"B",t:"查查资料，自己尝试解决",s:"M"},{l:"C",t:"立刻找大佬请教或上网搜索现成方案",s:"H"}] },
+    // IM3 界面友好度
+    { dim:"IM3 界面友好度", model:"交互模式", q:"在陌生人较多的社交场合，你给人的第一印象通常是？",
+      opts:[{l:"A",t:"高冷、有距离感，不太容易接近",s:"L"},{l:"B",t:"礼貌温和，但保持边界",s:"M"},{l:"C",t:"阳光社牛，跟谁都能迅速「化学反应」，打成一片",s:"H"}] },
+    { dim:"IM3 界面友好度", model:"交互模式", q:"你更愿意和哪种类型的人做朋友？",
+      opts:[{l:"A",t:"同样喜欢独处、不用频繁联系、各自安好的人",s:"L"},{l:"B",t:"随和、好相处、偶尔聚聚的人",s:"M"},{l:"C",t:"热情奔放、坦诚相见、像生物质能一样什么都能「消化转化」的社交达人",s:"H"}] },
+    // TH1 响应速度
+    { dim:"TH1 响应速度", model:"时间视野", q:"面对一个重要决定（如选专业、换工作），你的决策速度是？",
+      opts:[{l:"A",t:"极致慢热，反复权衡好几个月才能下决心",s:"L"},{l:"B",t:"花一段时间认真考虑，但不拖沓",s:"M"},{l:"C",t:"快准狠，直觉指引我迅速拍板，绝不犹豫",s:"H"}] },
+    { dim:"TH1 响应速度", model:"时间视野", q:"开会或上课时被老师/领导突然点名发言，你通常会？",
+      opts:[{l:"A",t:"大脑空白，需要沉默好几秒才能挤出几个字",s:"L"},{l:"B",t:"稍作思考，给出一个中规中矩的回答",s:"M"},{l:"C",t:"张嘴就来，思路清晰，快速输出观点",s:"H"}] },
+    // TH2 储能时长
+    { dim:"TH2 储能时长", model:"时间视野", q:"你对一件事（爱好/习惯/目标）的热情通常能持续多久？",
+      opts:[{l:"A",t:"三分钟热度，新鲜感一过就换下一个",s:"L"},{l:"B",t:"几个月到一年左右，看情况",s:"M"},{l:"C",t:"几年起步，甚至可以跨越季节、跨越年份一直坚持",s:"H"}] },
+    { dim:"TH2 储能时长", model:"时间视野", q:"你做计划通常会规划到多长时间以后？",
+      opts:[{l:"A",t:"从不做计划，走到哪算哪",s:"L"},{l:"B",t:"月度或季度计划，看得比较近",s:"M"},{l:"C",t:"有长达数年甚至十年以上的人生大周期规划",s:"H"}] },
+    // TH3 未来愿景
+    { dim:"TH3 未来愿景", model:"时间视野", q:"以下哪句话最符合你对人生的看法？",
+      opts:[{l:"A",t:"及时行乐，今天的快乐才是真实的",s:"L"},{l:"B",t:"做好未来三五年的规划，稳步前进",s:"M"},{l:"C",t:"我活着就是为了实现一个宏大的、改变世界的目标",s:"H"}] },
+    { dim:"TH3 未来愿景", model:"时间视野", q:"你对「成功」的定义更接近以下哪种？",
+      opts:[{l:"A",t:"今天比昨天过得开心，就是最大的成功",s:"L"},{l:"B",t:"按自己的规划一步步实现阶段性目标",s:"M"},{l:"C",t:"为人类文明进步、地球可持续发展做出了不可磨灭的贡献",s:"H"}] },
+    // RP1 资源态度
+    { dim:"RP1 资源态度", model:"资源哲学", q:"你在消费/理财方面的习惯更接近？",
+      opts:[{l:"A",t:"月光族，想花就花，感觉钱花完了还会再来",s:"L"},{l:"B",t:"适度储蓄和规划，但不过分抠门",s:"M"},{l:"C",t:"精打细算，珍惜每一分钱，像锂电池珍惜每一克锂资源",s:"H"}] },
+    { dim:"RP1 资源态度", model:"资源哲学", q:"你如何看待自己的时间资源？",
+      opts:[{l:"A",t:"时间有的是，浪费一点没关系",s:"L"},{l:"B",t:"会做时间管理，但没那么严格",s:"M"},{l:"C",t:"时间就是能量，必须高效利用每一「焦耳」，绝不虚度",s:"H"}] },
+    // RP2 循环倾向
+    { dim:"RP2 循环倾向", model:"资源哲学", q:"处理旧衣服/旧物品时，你通常会？",
+      opts:[{l:"A",t:"直接扔进垃圾桶，眼不见为净",s:"L"},{l:"B",t:"送给朋友或捐给回收站",s:"M"},{l:"C",t:"必须想办法改造再利用，或者确保进入专业回收闭环，绝不浪费",s:"H"}] },
+    { dim:"RP2 循环倾向", model:"资源哲学", q:"一段重要的关系（友谊/爱情）结束后，你倾向于？",
+      opts:[{l:"A",t:"彻底删掉拉黑，老死不相往来",s:"L"},{l:"B",t:"放着不管，偶尔看两眼但不再联系",s:"M"},{l:"C",t:"把它转化成亲情或平淡的友谊，实现关系的「循环再利用」",s:"H"}] },
+    // RP3 风险偏好
+    { dim:"RP3 风险偏好", model:"资源哲学", q:"如果让你选择一份工作，你更倾向于？",
+      opts:[{l:"A",t:"体制内/大公司，极度稳定，几乎零风险",s:"L"},{l:"B",t:"有前景但存在一定风险的创业公司或新赛道",s:"M"},{l:"C",t:"前沿探索类工作，哪怕99%会失败，但一旦成功就改变世界",s:"H"}] },
+    { dim:"RP3 风险偏好", model:"资源哲学", q:"你更期待生活在一个怎样的未来里？",
+      opts:[{l:"A",t:"安稳、可预测、一切都在掌控之中的未来",s:"L"},{l:"B",t:"有点挑战，但总体可以把握的未来",s:"M"},{l:"C",t:"充满未知、颠覆性机会和无限可能性的未来",s:"H"}] }
+];
+
+// ==================== 16种人格模板 ====================
+const personalities = [
+{
+    n:"稳如泰山", c:"P-W-S-H", fn:"Pumped Water Storage Hero —— 抽水蓄能英雄", t:"抽水蓄能", camp:"储能",
+    v:["L","H","M","H","H","H","L","L","M","L","H","M","L","M","L"],
+    qt:"「在最低处蓄力，在最高处发光。」",
+    p:`你是团队里那个话不多但所有人都离不开的"定海神针"。当大家被DDL追得鸡飞狗跳的时候，你在默默蓄水；当领导突然要一个方案的时候，你"开闸放水"一鸣惊人。别人羡慕你"平时看着啥也没干，关键时刻怎么什么都能搞定"，只有你自己知道——那些看似悠闲的时光，你都在蓄能。<br><br>你有一种近乎禅意的智慧：懂得低谷是用来蓄力的，而不是用来焦虑的。你的生活节奏像呼吸一样自然——蓄水时安静从容，发电时全力以赴。你从不为"现在没在忙"而感到愧疚，因为你笃信：能量守恒，此时不卷，彼时一鸣。<br><br>抽水蓄能是人类最早的大规模储能方式，它提醒我们一个朴素的真理——高低错落本身就是一种力量。这个世界需要追风逐日的少年，也需要像你一样愿意先沉下去再升上来的人。你不着急，因为你相信势能。`,
+    ti:`抽水蓄能的核心原理是利用电能与重力势能的相互转化，实现电能的储存与释放。一套完整的抽水蓄能电站由上下两个地势高低不同的水库和可逆式水泵水轮机组成。当电力系统有富余电力时（如夜间用电低谷），电站利用这些电能将下水库的水抽到上水库，把电能转化为水的势能储存起来；当用电高峰来临时，打开上水库的闸门放水，水流向下冲击水轮机，带动发电机发电，将势能重新转化为电能。<br><br>抽水蓄能有一个有趣的运行特征——"抽四发三"：每用电4千瓦时抽上去的水，发电时大约能放出3千瓦时，消耗比产出多1千瓦时。这看似"亏本"的生意，实际上赚的是"时间差"——在电价低的时候储能、电价高的时候放电，同时为电网提供调峰、调频、备用等关键服务。<br><br>抽水蓄能是当前技术最成熟、应用最广泛的大规模储能技术。电站装机容量可达千兆瓦级，具有储能容量大、运行灵活、反应迅速等特点，被形象地称为"巨型充电宝"。它也是公认的最安全、最稳定、最环保、最经济的储能方式之一，主要服务于电网的削峰填谷、调频调压和事故备用，是新型电力系统中不可或缺的核心组成部分。`,
+    pn:"核聚变梦想家", pd:"你负责把他飘在云端的理想接住，他负责给你画饼。"
+},
+{
+    n:"空气炸锅", c:"C-A-S-H", fn:"Compressed Air Storage Hero —— 压缩空气英雄", t:"压缩空气储能", camp:"储能",
+    v:["L","M","L","H","M","H","L","M","M","M","H","M","M","M","L"],
+    qt:"「平时像个憨憨，爆发就是王炸。」",
+    p:`你身上有一种迷人的反差感。日常状态下，你看起来温温吞吞、人畜无害，像个在地下仓库里默默囤货的仓鼠，别人甚至觉得你有点"好欺负"。但只有极少数人知道——你那口"锅"里压着的，是足以掀翻屋顶的能量。<br><br>你信奉长期主义到了令人发指的地步。你可以忍受一整年的默默无闻，就为了一个五分钟的高光时刻。你不争不抢，不是因为没有野心，而是因为你的野心需要足够长的引信。你是那种"平时考试平平无奇，高考直接全省前十"的选手。<br><br>空气被压缩时，分子们在狭小的空间里剧烈碰撞，每一下都积蓄着反弹的渴望。人生的蛰伏期也是如此——那些被压缩的时光，终将在释放时撑开一片天空。你比任何人都懂：忍耐不是懦弱，是另一种形式的压强积累。`,
+    ti:`压缩空气储能的原理与抽水蓄能有异曲同工之妙。在用电低谷时，利用富余电能驱动压缩机，将常温常压的空气压缩至高压状态（如从1个标准大气压压缩到140个标准大气压），存储在地下盐穴、废弃矿洞或特制储气罐中。这个过程中，电能被转换成了空气的压力能和一部分热能。在用电高峰时，从储气库中释放高压空气，经加热升温后通过膨胀机做功，驱动发电机发电。压缩过程中产生的热量还可以用热水、熔盐等形式储存在地面的储热罐中，用于后续加热空气，提高整体效率。<br><br>压缩空气储能是除抽水蓄能之外最为成熟的物理储能技术之一。它具有建设周期短、功率大、储时长、安全性高、寿命长等突出优势。利用地下盐穴作为储气库，不仅节约了地表空间，还实现了废弃地下空间的资源化利用。我国江苏金坛等地已建成盐穴压缩空气储能电站并投产发电。`,
+    pn:"浪里白条", pd:"他负责制造风浪，你负责把它压成能量。"
+},
+{
+    n:"锂想家", c:"L-I-O-N", fn:"Lithium-Ion Operator Noble —— 锂离子操作贵族", t:"锂离子电池", camp:"储能",
+    v:["M","M","H","H","H","M","M","M","H","H","L","L","H","L","M"],
+    qt:"「密度之王，卷亦有道。」",
+    p:`你就是那个无论出现在哪里都要把"效率"两个字贴在脑门上的人。你的能量密度极高——同样24小时，你能塞进去别人48小时的工作量；同样一个团队，你一个人顶三个人用。你就像锂离子一样，在正负极之间飞速穿梭，一刻都停不下来。<br><br>但你不是无脑卷。你是那种"卷也要卷出方法论"的人——你知道什么时候该快充、什么时候该慢放，你对自己能量的管理精细到每一个"焦耳"。你讨厌拖泥带水，讨厌低效会议，讨厌一切"电阻"。<br><br>锂是元素周期表上最轻的金属之一，却拥有最高的能量密度。它提醒我们——真正的力量不在于体积大小，而在于单位质量里能爆发出多少光热。你天生就是为高速运转而生的，但请记住：能量密度越高，散热越重要。给自己留一点冷却时间，不是浪费，是为了不"热失控"。`,
+    ti:`锂离子电池是一种电化学储能装置，其核心工作原理被称为"脱嵌反应"。锂离子在电池的正极和负极之间来回穿梭：充电时，锂离子从正极材料（如磷酸铁锂）中脱出，穿过电解质和隔膜，嵌入负极材料（如石墨）的结构空隙中储存起来；放电时，锂离子又从负极脱出、返回正极。这个过程类似于图书馆的"书籍借还"系统——充电是把书从正极书架搬到负极书柜，放电是原路还回去。<br><br>在我国新型储能技术中，锂离子电池储能占比超过95%，是当之无愧的"顶流"。它具有电压高、体积小、质量轻、能量密度高、无污染、寿命较长等优点。磷酸铁锂电池比能量约90至190Wh/kg，循环寿命可达3000次以上。该技术广泛应用于消费类电子产品、电动汽车以及各类储能电站。`,
+    pn:"钠么棒", pd:"他负责降本，你负责增效，你们是新能源界的「性价比CP」。"
+},
+{
+    n:"液态侠", c:"F-L-O-W", fn:"Flow Liquid Oxygen Warrior —— 液流氧气战士", t:"液流电池", camp:"储能",
+    v:["L","L","L","H","M","H","L","L","M","L","H","M","M","H","L"],
+    qt:"「慢慢来，谁和你比天长地久。」",
+    p:`你是所有人格中最有"安全感"的那个。别人都在拼爆发力、拼速度、拼一时输赢，你微微一笑——"我陪你玩一辈子"。你的情绪稳定得像一池静水，你的关系持久得像可以循环两万次的电解液。<br><br>你不追求一见钟情，不喜欢速食关系。你相信所有值得的东西都需要时间沉淀。你进入状态确实慢，但一旦运转起来，谁也追不上你的续航。你是那种"一起熬夜做项目最后所有人都倒了只有你还在画图"的神人。<br><br>液流电池的电解液在储罐里安静地待着，不声不响，但每一次循环都精准无误。这何尝不是一种人生态度？不是所有付出都需要立刻看见回报，有些能量就是用来慢慢释放的。你像一条河流，不争先后，只争滔滔不绝。`,
+    ti:`液流电池是一种完全不同于锂电池的电化学储能技术。以技术最成熟的全钒液流电池为例，其正负极活性物质都是不同价态的钒离子——正极电解液含四价/五价钒离子，负极电解液含二价/三价钒离子。两种电解液分别储存在独立的储罐中，通过电泵驱动在电池内部循环流动。充放电时，不同价态的钒离子在电极表面发生氧化还原反应，完成电能和化学能的相互转化。<br><br>液流电池具有本征安全、超长寿命和容量功率解耦等独特优势。容量和功率可以独立设计——想要更大容量，只需要增大电解液储罐；想要更大功率，只需要增加电堆数量。自放电非常小，存放数天甚至数周后电量都不会明显衰减。能量效率可达80%以上，循环寿命超过20000次。`,
+    pn:"追风少年", pd:"他负责快，你负责久。"
+},
+{
+    n:"陀螺王", c:"S-P-I-N", fn:"Speedy Power Inertia Navigator —— 快速动力惯性导航者", t:"飞轮储能", camp:"储能",
+    v:["M","L","H","H","H","L","H","H","L","H","L","L","L","M","M"],
+    qt:"「转起来，我就是宇宙中心。」",
+    p:`你的座右铭只有一个字：快。不是一般的快，是快到你身边的人还没来得及反应，你已经做完一轮又一轮了。你就像那个高速旋转的飞轮——响应速度以毫秒计，处理突发状况是你的看家本领。<br><br>你喜欢高频交互，喜欢即时反馈，喜欢一切"短平快"的东西。让你做长线规划你会疯掉，但让你处理紧急任务——那就是你的主场。你是办公室里的"救火队长"，群里的"秒回怪"，朋友眼中的"行走的应急电源"。<br><br>飞轮能转起来，靠的是旋转动能——每一圈都在加固下一圈。你的人生也是如此：行动不是消耗，行动本身就是蓄能。你越转越稳，越动越快。但物理告诉我们，任何旋转体都有摩擦损耗，都需要定期"加轴承油"。你也是。`,
+    ti:`飞轮储能是一种纯物理储能方式，不依赖化学反应，也不靠液体或气体的压缩。其原理非常简单：在电力富余时，用电能驱动电机带动飞轮高速旋转，电能转化为飞轮的转动动能储存起来；当系统需要用电时，利用飞轮高速旋转的惯性带动转子旋转，通过发电机将动能重新转换成电能输出。飞轮本体是核心部件，为了追求更高的储能量，目前多采用碳素纤维等轻质高强度材料制作。<br><br>飞轮储能突破了化学电池的局限，用物理方法实现储能。它具有使用寿命长、充放电次数多（可达数百万次）、响应速度快、能量密度高、安全环保等优点。特别适合需要短时、高频、大功率充放电的应用场景。该技术广泛应用于电力系统一次调频、高铁能量回收、数据中心不间断电源等领域。`,
+    pn:"稳如泰山", pd:"他负责稳住基本盘，你负责快速响应，你们是「一动一静」的完美组合。"
+},
+{
+    n:"超导冰", c:"Z-E-R-O", fn:"Zero Energy Resistance Operator —— 零电阻能量操作者", t:"超导储能", camp:"储能",
+    v:["M","L","H","M","H","H","H","H","L","H","L","L","L","L","H"],
+    qt:"「零损耗的高冷天花板。」",
+    p:`你，就是那个朋友圈里永远不点赞、但一说话就让人膝盖发软的技术大佬。你的"高冷"不是装的，是必须保持低温才能实现零损耗运行——你把自己的社交面缩到最小，把全部功率集中在核心目标上。<br><br>你对"低效"零容忍。看到别人做事拖泥带水，你内心的感受相当于"这电阻怎么这么大"。你追求极致理性，不喜欢情绪化的表达，说话直接到可能伤人，但熟悉你的人都知道——你没有恶意，你只是效率太高，顾不上修饰。<br><br>超导现象必须在极低温度下才能发生——这像极了那些需要孤独才能绽放的天才灵魂。你选择孤独，不是因为冷漠，而是因为你清楚地知道：室温下可以做个好人，但只有低温下才能做个超人。你为自己构建的"低温环境"，恰恰是你能量无损运转的前提。`,
+    ti:`超导储能（SMES）利用超导材料的零电阻特性来储存电能。核心原理是将电能转化为磁场能量，储存于超导材料制成的线圈中。由于超导线圈的电阻为零，电流可以在其中无损耗地循环流动，能量得以长期保持。需要释放能量时，通过电力电子变流器将磁场能快速转换回电能输出。整个系统由超导磁体、低温制冷系统、变流器及监控装置构成。<br><br>超导储能是典型的功率型储能装置，具有响应速度极快（毫秒级）、转换效率高（96%以上）、功率密度极高（10⁴至10⁵kW/kg）等显著优势。由于几乎没有能量损耗，寿命极长且维护简单。不过，维持超导状态需要持续的低温制冷，这是其成本较高的主要原因。`,
+    pn:"热力绅士", pd:"你的低温需要他的高温来平衡，铸就冰与火之歌。"
+},
+{
+    n:"氢骑士", c:"H-Y-D-R", fn:"Hydrogen Yield & Dispatch Rider —— 氢能产出与调配骑士", t:"氢能储能", camp:"储能",
+    v:["L","H","L","M","L","M","H","H","M","M","H","H","H","H","H"],
+    qt:"「我的征途是跨季节，不是下一秒。」",
+    p:`你是新能源人格里的"终极理想主义者"。别人看眼前，你看一百年后。别人说"这个项目这个季度能不能回本"，你说"这个模式能不能改变人类文明的能源结构"。你是那种会因为"这件事对五十年后的地球有意义"而今天就开始做的人。<br><br>你不怕效率低，不怕路长，不怕暂时看不到回报。因为你知道——氢是宇宙中最丰富的元素，跨季节储能是解决能源问题的终极方案之一。你身上有一种老派理想主义者的浪漫：温和、坚定、不疾不徐。<br><br>氢是宇宙中最轻的元素，却承载着最重的使命。它可以储存数月不衰减，跨越季节为你供暖。你的人生信条也是——"重要的不是现在有多少，而是能留到什么时候"。效率不是你的追求，可持续才是。`,
+    ti:`氢储能是以氢能为核心能源载体的新型储能技术。狭义的氢储能基于"电—氢—电"的转换过程：首先，利用富余的新能源电力进行电解水，将水分解为氢气和氧气；制得的氢气通过压缩机储存于高压储氢罐中；当用电高峰来临时，储存的氢气通过燃料电池或氢燃机发电，将化学能重新转化为电能输出。<br><br>氢储能的突出优势在于能量密度极高——是电化学储能的100多倍。储存时间可长达数周甚至数月，非常适合跨季节的长时储能。目前的主要挑战在于整体往返效率有待提升。该技术适用于大规模、长周期储能场景，尤其适合解决风电、光伏的季节性波动问题。`,
+    pn:"核聚变梦想家", pd:"你们俩凑一起，可以聊三天三夜「终极能源」的话题，别人根本插不上嘴。"
+},
+{
+    n:"钠么棒", c:"S-O-D-A", fn:"Sodium Operational Delivery Ace —— 钠离子操作输送王牌", t:"钠离子电池", camp:"储能",
+    v:["M","M","M","M","M","H","M","M","H","M","M","L","M","M","L"],
+    qt:"「平凡但不平庸，便宜但不廉价。」",
+    p:`你是16个人格里最"接地气"的那个。你不追求最顶级的性能，不追求最华丽的标签，你追求的是：够用、好用、谁都用得起。你是新能源界的"国民暖男"——锂电是高配跑车，你是千家万户的电动车。<br><br>你的性格极好：耐寒耐热，宽温域运行，从不耍脾气。和谁都能处得来，对物质条件不挑剔。你有一种"大智若愚"的通透——别人在卷性能参数的时候，你在想"怎么让更多人用上"。<br><br>钠是地球上第六丰富的元素，海水中到处都是。它提醒我们——真正改变世界的，从来不是最稀缺的东西，而是最普惠的东西。你不需要成为金字塔尖上那个人，你只需要让金字塔底层的每个人都能用上一点光。`,
+    ti:`钠离子电池的工作原理与锂离子电池高度相似，都是依靠离子在正负极之间的嵌入和脱嵌来实现电荷转移，学术界形象地称之为"摇椅式"机理。两者的核心区别在于，钠离子电池以钠离子替代锂离子作为电荷载体。<br><br>钠离子电池被称为"锂电池的最佳替代者"。钠的资源储量远比锂丰富、分布广泛，成本更低。钠离子电池在高温下稳定性较高，热失控风险相对较低。目前主流钠离子电池的能量密度约120至160Wh/kg，虽低于锂电池，但在对空间和重量要求不那么苛刻的场景中具有极致的性价比优势。该技术适用于两轮电动车、低速代步车以及大规模风力光伏发电储能电站。`,
+    pn:"锂想家", pd:"他负责跑车，你负责公交车，你们一起让世界动起来。"
+},
+{
+    n:"追风少年", c:"W-I-N-D", fn:"Wind Innovation Natural Driver —— 风能创新自然驱动者", t:"风力发电", camp:"发电",
+    v:["H","H","M","L","H","L","H","M","M","M","L","M","H","L","M"],
+    qt:"「没有风的时候，我也在等风来。」",
+    p:`你是天生的自由主义者。你的人生必须待在"开阔的地方"——无法忍受格子间，无法忍受一成不变，无法忍受被困住。你需要风，需要变化，需要不确定性带来的刺激。<br><br>你直率得让人又爱又恨：心情好的时候，输出爆表，人人都爱你；没风的时候，你直接"摆烂"——"别催我，我在等风。"你不装，不演，能量随天气波动，但正因如此，你真实得可爱。<br><br>风是空气从高压流向低压的自然现象——你的人生也是：你总是从"压抑"流向"释放"，从"逼仄"流向"开阔"。你不是不稳定，你只是太诚实——没有能量的时候，你选择不装。而那些假装永远有风的人，才是最累的。`,
+    ti:`风力发电的核心是将风的动能转化为电能。风吹过风力机的叶片时，由于叶片截面是向外凸出的翼型，空气绕过叶片会产生升力，推动叶轮旋转——这个原理与飞机机翼产生升力的原理相似。风轮旋转产生的扭矩通过传动系统传递给发电机。以海上风机为例，风车每转1圈，内部的齿轮箱能让发电机转150圈，转速被提升至约1500转/分钟。发电机通过电磁感应作用将机械能转换为电能，经变压器升压后接入电网。<br><br>风力发电没有直接的污染排放，建成周期短，没有水力发电的库区移民和地质影响等问题。一般4级以上风即可转动发电，但8级以上大风时需停机保护设备。从陆上风电场到海上风电，风力发电已成为全球新增电力装机的重要组成部分。`,
+    pn:"潮汐守望者", pd:"他负责永恒和规律，你负责自由和惊喜。"
+},
+{
+    n:"阳光收集者", c:"S-U-N-N", fn:"Solar Utility Natural Navigator —— 太阳能实用自然导航者", t:"光伏发电", camp:"发电",
+    v:["M","L","M","L","H","M","L","H","H","M","L","L","H","L","L"],
+    qt:"「有光的地方，就有我。」",
+    p:`你是温柔而坚定的存在。不需要宏大的舞台，不需要炫目的背景，只要有光照到你，你就能工作。你是分布式能源的典型代表——润物细无声地出现在千家万户的屋顶，不争不抢，但始终在线。<br><br>你的性格像阳光本身：温和、均匀、不偏不倚。你不喜欢冲突，不喜欢抢风头，但你也不是没有原则——你只输出自己真正拥有的能量，绝不透支。你信奉"独立自主"到骨子里：能自己发电，绝不向电网伸手。<br><br>光伏效应是半导体的内建电场把光子变成电子——你的人生也是如此：你擅长把外界的光（赞美也好、质疑也好）转化为内在的动力。你不需要强光，阴天也能工作；你不需要被看见，但你始终在发光。`,
+    ti:`光伏发电是利用半导体界面的"光生伏特效应"将光能直接转变为电能的一种技术。其关键元件是太阳能电池。当太阳光照射到半导体PN结上时，光子被吸收后产生电子-空穴对。在内建电场的作用下，电子向N区移动、空穴向P区移动，使P区带正电、N区带负电，从而在PN结两端形成光生电动势——这就是光生伏特效应。<br><br>光伏发电将光能直接转换为电能，中间没有机械运动环节，系统简单可靠、维护成本低。太阳能资源无处不在、取之不尽，是目前发展最快的新能源发电技术之一。从屋顶分布式光伏到大型地面光伏电站，从偏远地区的独立供电到城市电网的并网发电，光伏发电已渗透到能源应用的各个层面。`,
+    pn:"热力绅士", pd:"你把光发电，他负责把光储热，你们是「用光」的两条路径。"
+},
+{
+    n:"热力绅士", c:"H-E-A-T", fn:"Heat Energy Accumulation Transformer —— 热能积累转换者", t:"光热发电", camp:"发电",
+    v:["M","M","L","H","M","H","L","L","M","L","H","M","M","M","L"],
+    qt:"「表面平静，内心滚烫。」",
+    p:`你是"反射型人格"——你不是光源，但你擅长把别人的光聚焦到你身上，然后转化成自己的热量。你有一种迷人的"延迟满足"能力：白天蓄力，夜晚释放；表面平静，内心滚烫。<br><br>你看起来温和有礼、节奏缓慢，但只有最亲近的人知道——你的内心深处常年保持着565摄氏度的高温。你会在别人看不见的时候默默储备，然后在最需要的时候精准释放。你是那种"平时不显山露水，年底一算账绩效最高"的选手。<br><br>光热发电最迷人的地方在于——它把瞬间的日照变成可储存的熔盐热能。这多么像人生啊：那些被接住的瞬间，经过时间的熬煮，终将在夜晚为你供暖。你不是不发光，你只是比光伏慢了一步，但你比他多走了一夜。`,
+    ti:`光热发电与光伏发电虽然都利用太阳能，但路径完全不同。光热发电首先利用反射镜将分散的太阳光反射聚焦到集热器上，转化为高温热能。以塔式光热电站为例，大量定日镜跟随太阳运动，将阳光反射到中央塔顶的吸热器上。聚焦后的高能热辐射加热吸热管内的熔盐工质，熔盐温度可升至290至565摄氏度。被加热的高温熔盐流入热盐罐中储存；当电网需要电能时，高温熔盐与水换热产生高温高压蒸汽，驱动汽轮发电机组发电。<br><br>光热发电的最大优势在于"自带储能"——熔盐储热系统使电站可以在没有太阳照射的情况下继续发电数小时，大大提高了系统的灵活性和可靠性。我国已建成全球最大的熔盐线性菲涅尔光热电站。`,
+    pn:"超导冰", pd:"你的高温需要他的低温来平衡，你们是天造地设的「冰火CP」。"
+},
+{
+    n:"地心探险家", c:"D-E-E-P", fn:"Deep Earth Energy Producer —— 深层地能生产者", t:"地热能发电", camp:"发电",
+    v:["L","L","M","H","H","H","L","L","L","L","H","M","H","M","L"],
+    qt:"「向下扎根的人，不需要仰望天空」",
+    p:`你是16个人格里最"稳"的，没有之一。你不靠天吃饭，不看人脸色——你的能量来自地核，来自大地深处永不降温的热情。你给人的感觉是厚重、可靠、不言不语但一直在线。<br><br>你不喜欢社交媒体的喧嚣，不喜欢追风口、赶热点。你更愿意往深处走——学问的深处、关系的深处、内心的深处。你相信所有的力量都来自底层，而不是表面。你是团队里的"底牌"，平时没人注意你，但一旦系统出了大问题，所有人都会说："快去问问他！"<br><br>地球内部的热量来自放射性元素的衰变和原始引力势能——它们是地球最古老的能量。你的人生观也是如此：最可靠的能量，来自最深的地方。`,
+    ti:`地热能发电的基本原理与火力发电类似，都是根据能量转换原理，首先把热能转换为机械能，再把机械能转换为电能。不同的是，火力发电靠烧煤或燃气产生蒸汽，而地热发电中地球本身起到了"锅炉"的作用——利用地下热水和蒸汽作为动力源，从地热井中引出后推动涡轮机旋转，带动发电机发电。地热发电主要有三种技术路线：干蒸气发电、闪蒸蒸汽发电和二元循环发电。<br><br>地热能是一种储量巨大、稳定连续、零碳排放的可再生能源。它可以24小时不间断发电，不受天气和环境的影响，是理想的基荷电源，被誉为"地球深处的清洁能源宝库"。全球已有24个国家使用地热能发电。`,
+    pn:"阳光收集者", pd:"一个来自天上，一个来自地下，你们是「天地组合」。"
+},
+{
+    n:"浪里白条", c:"W-A-V-E", fn:"Wave Amplitude Voltage Engineer —— 波浪振幅电压工程师", t:"波浪能发电", camp:"发电",
+    v:["H","M","H","L","M","L","H","M","M","M","L","M","M","L","H"],
+    qt:"「人生嘛，就是要在风浪里跳舞。」",
+    p:`你是情绪的能量体。你的能量与环境的"浪高"成正比——环境越动荡、挑战越大，你反而越兴奋。你是那种"危机来了别人都在跑，你冲进去说'我来'"的人。<br><br>你有很强的艺术气质和冒险精神。情绪波动大是你的特征，也是你的才华——你不追求平稳，你追求足够大的振幅。你的人生信条是：宁可大起大落，不要一潭死水。你在波动中获取能量，在不确定中寻找机会。<br><br>波浪的能量与波高的平方成正比——这意味着，你的"低谷"越深，反弹时能释放的能量就越大。你不是情绪不稳定，你只是把每一次低谷都压缩成了反弹的弹簧。`,
+    ti:`波浪能主要由风的作用引起海水沿水平方向周期性运动而产生。波浪的能量表现为水体的垂直位移（势能）和水平流动（动能）。波浪能转化为电能需要经过三级转换：首先由捕捉装置吸收波浪能，然后通过传动装置转换成机械能，最后经由发电机组转换成电能。<br><br>波浪能的优势在于海洋波浪能量的稳定性和持续性。在风力和太阳能等能源不稳定的情况下，波浪能能够提供更加可靠和稳定的能源供给。不过，波浪能密度较低，能量转换过程中损失较大。波浪能可用于发电、抽水、供热、海水淡化以及制氢等。我国已成功研制全球首台兆瓦级漂浮式波浪能发电装置，被誉为"海上充电宝"。`,
+    pn:"稳如泰山", pd:"你的波动需要他的稳定来中和，你们是「动与静」的完美平衡。"
+},
+{
+    n:"潮汐守望者", c:"T-I-D-E", fn:"Tidal Induction Dynamic Engineer —— 潮汐感应动力工程师", t:"潮汐能发电", camp:"发电",
+    v:["M","M","M","H","M","H","L","L","L","L","H","M","M","M","L"],
+    qt:"「我相信月亮，也相信时间。」",
+    p:`你是"秩序的狂热爱好者"。你相信万物有规律，相信时间会给出答案，相信精确可预测的节奏是世界上最可靠的东西。你做事前必做计划，做计划前必看"星象"（数据、逻辑、历史经验）。<br><br>你不喜欢惊喜，不喜欢不确定性，不喜欢"看心情"做事。你是朋友圈里那个每天定点打卡的人，是项目组里那个"永远提前一天交稿"的人。你给人带来的不是惊艳，而是无与伦比的安心感。<br><br>潮汐能是人类最早利用的能源之一——古人早就知道"潮起潮落，月有阴晴圆缺"。你的人生观也是如此：最强大的力量，往往藏在最规律的循环里。不需要大起大落，不需要戏剧性，只需要像月亮牵引潮汐一样，日日不辍地推着世界运转。`,
+    ti:`潮汐是地球自转与月球引力共同导致的海面周期性涨落现象。潮汐能发电的原理与常规水力发电类似，都是利用水的势能来发电。在海湾或有潮汐的河口建筑拦水堤坝形成水库，在坝中或坝旁放置水轮发电机组。涨潮时，海水涌入水库被蓄存起来，以势能形式保存；落潮时，放出水库中的海水，利用高、低潮位之间的落差推动水轮机旋转，带动发电机发电。<br><br>潮汐能的最大优势在于其稳定性和可预测性。潮汐涨落周而复始、规律性极强，可以精确预测未来的发电量，这远优于受天气影响较大的风电和光伏。我国沿海地区拥有丰富的潮汐能资源，是蓝色能源开发的重要方向。`,
+    pn:"追风少年", pd:"他的自由需要你的规律来平衡，你的规律需要他的自由来打破——你们是「秩序与混沌」的最佳辩论对手。"
+},
+{
+    n:"生物炼金师", c:"B-I-O-M", fn:"Biomass Integrated Organic Maker —— 生物质集成有机制造者", t:"生物质能发电", camp:"发电",
+    v:["H","L","L","M","L","M","H","L","H","L","M","L","M","H","L"],
+    qt:"「没有什么废料，只有放错地方的宝藏。」",
+    p:`你是新能源界最强的"社交转化器"。你有种神奇的能力：任何"垃圾"到你手里都能变成"资源"——别人的负面情绪到你这里变成了安慰，别人的冷场到你这里变成了段子，别人的矛盾到你这里变成了和解。<br><br>你是真正的社牛，但不是那种高高在上的社牛——你是接地气的、三教九流都能聊的、充满烟火气的社牛。你相信每一个人都有"热值"，每一段关系都可以"燃烧发电"。你是朋友圈里的"心理垃圾处理站"，大家有事都来找你"转化"。<br><br>生物质能本质上就是"太阳能的生物存储"——植物把阳光变成秸秆，你把秸秆变成电。你的人生使命也是如此：把别人看来无用的东西，变成有用的光热。`,
+    ti:`植物是天然的"太阳能充电宝"——通过光合作用将太阳能转化为化学能储存在生物质中。生物质能发电就是释放这些储存的能量，将其转化为可用电能。最常见的路径是直接燃烧发电：将秸秆、木屑、城市垃圾等固体生物质送入专用锅炉中燃烧，产生高温高压蒸汽，驱动汽轮发电机组发电。此外还有气化发电路径以及厌氧发酵路径——利用有机废弃物产生沼气，燃烧沼气发电。<br><br>生物质能发电实现了"变废为宝"——把没人要的农林废弃物、城市垃圾变成了宝贵的电力。生物质能资源来源广泛、取之不尽，同时具有碳中性特征。该技术适用于农林废弃物丰富的农村地区、城市垃圾处理场以及工业园区等。`,
+    pn:"超导冰", pd:"一个负责回收转化一切，一个负责零损耗极致效率——你们是「零废料+零损耗」的天花板组合。"
+},
+{
+    n:"核聚变梦想家", c:"F-U-S-E", fn:"Future Ultimate Synthetic Energy —— 未来终极合成能源", t:"核聚变发电", camp:"发电",
+    v:["H","H","H","M","L","L","H","H","L","L","L","H","H","H","H"],
+    qt:"「我要在人间，造一个太阳！」",
+    p:`你是16个人格里最"疯"的那个——不是贬义，是最接近神的那种疯。你的目标从来不是什么"升职加薪""财务自由"，你的目标是：解决人类文明的根本能源问题。你认真地相信这件事能做得到，并愿意为此付出一生。<br><br>你身上有一种迷人的"非理性自信"——从数据上看，核聚变永远"还有50年"；但从信念上看，你觉得"就快到了"。你不太看得上眼前的小成就，也不太在意当下的得失。你的时间尺度是"世纪"，你的坐标系是"全人类"。<br><br>核聚变是两个原子核克服巨大的库伦斥力、融合成一个更重的核——这个过程需要上亿度的高温。你的人生也是如此：你想让那些原本互相排斥的人、观念、力量融合在一起，爆发出照亮世界的光。`,
+    ti:`核聚变是两个轻原子核在极端高温高压条件下结合成一个较重原子核，并释放出巨大能量的过程。这也是太阳和其他恒星发光发热的基本原理。可控核聚变通常以氢的同位素——氘和氚作为燃料。在托卡马克等磁约束装置中，燃料被加热到上亿摄氏度，形成等离子体状态，在强磁场约束下发生聚变反应。<br><br>核聚变的能量密度极高——1克氘氚燃料聚变释放的能量，相当于8吨石油完全燃烧的能量。燃料氘可从海水中提取，资源几乎取之不尽。与目前的核裂变发电相比，聚变反应不产生长寿命的高放射性核废料，运行过程不排放二氧化碳。因此，可控核聚变被视为人类能源的"圣杯"和解决全球能源危机的"终极答案"。`,
+    pn:"稳如泰山", pd:"当你飘到宇宙边缘的时候，他在下面稳稳接着你；当他需要一点想象力的时候，你给他画了整个银河系。"
+}
+];
+
+// ==================== 全局变量 ====================
+let currentQuestion = 0;
+let answers = new Array(30).fill(null);
+
+// 维度顺序（固定）
+const DIM_ORDER = ['EO1','EO2','EO3','RE1','RE2','RE3','IM1','IM2','IM3','TH1','TH2','TH3','RP1','RP2','RP3'];
+
+// 维度 -> 题目索引映射（每个维度对应2道题）
+const DIM_QUESTIONS = {
+    'EO1': [0,1], 'EO2': [2,3], 'EO3': [4,5],
+    'RE1': [6,7], 'RE2': [8,9], 'RE3': [10,11],
+    'IM1': [12,13], 'IM2': [14,15], 'IM3': [16,17],
+    'TH1': [18,19], 'TH2': [20,21], 'TH3': [22,23],
+    'RP1': [24,25], 'RP2': [26,27], 'RP3': [28,29]
+};
+
+const SCORE_MAP = {'L':0,'M':1,'H':2};
+const LEVEL_MAP = {0:'L',1:'M',2:'H'};
+const LEVEL_FROM_SCORE = s => s <= 1 ? 'L' : (s === 2 ? 'M' : 'H');
+
+// ==================== 页面切换 ====================
+function startTest() {
+    document.getElementById('homePage').style.display = 'none';
+    document.getElementById('testPage').style.display = 'block';
+    currentQuestion = 0;
+    answers.fill(null);
+    renderQuestion();
+}
+
+function showResult() {
+    document.getElementById('testPage').style.display = 'none';
+    document.getElementById('resultPage').style.display = 'block';
+
+    // 显示加载动画
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.remove('hidden');
+
+    setTimeout(() => {
+        const result = calculateResult();
+        displayResult(result);
+        overlay.classList.add('hidden');
+    }, 1500);
+}
+
+
+// ==================== 渲染题目 ====================
+function renderQuestion() {
+    const q = questions[currentQuestion];
+    const container = document.getElementById('questionContainer');
+
+    let html = `<div class="question-card">
+        <span class="question-number">第 ${currentQuestion + 1} 题</span>
+        <div class="question-text">${q.q}</div>
+        <div class="options">`;
+
+    q.opts.forEach((opt, i) => {
+        const selected = answers[currentQuestion] === i ? 'selected' : '';
+        html += `<div class="option-btn ${selected}" onclick="selectOption(${i})">
+            <span class="option-label">${opt.l}</span>${opt.t}
+        </div>`;
+    });
+
+    html += `</div></div>`;
+    container.innerHTML = html;
+
+    // 更新进度
+    const progress = ((currentQuestion + 1) / 30) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('progressText').textContent = `第 ${currentQuestion + 1} 题 / 共 30 题`;
+
+    // 更新按钮状态
+    document.getElementById('prevBtn').disabled = currentQuestion === 0;
+    const nextBtn = document.getElementById('nextBtn');
+    if (currentQuestion === 29) {
+        nextBtn.textContent = '查看结果';
+    } else {
+        nextBtn.textContent = '下一题';
+    }
+    nextBtn.disabled = answers[currentQuestion] === null;
+
+    // 滚动到顶部
+    showDimensionScores(result.userVector, result.rawScores);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectOption(index) {
+    answers[currentQuestion] = index;
+    renderQuestion();
+}
+
+function prevQuestion() {
+    if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion();
+    }
+}
+
+function nextQuestion() {
+    if (answers[currentQuestion] === null) return;
+    if (currentQuestion < 29) {
+        currentQuestion++;
+        renderQuestion();
+    } else {
+        showResult();
+    }
+}
+
+// ==================== 曼哈顿距离匹配算法 ====================
+function calculateResult() {
+    // 1. 计算每个维度的原始分并转为等级
+    const userVector = [];
+    const rawScores = [];
+    for (const dim of DIM_ORDER) {
+        const qIndices = DIM_QUESTIONS[dim];
+        let score = 0;
+        for (const qi of qIndices) {
+            if (answers[qi] !== null) {
+                score += SCORE_MAP[questions[qi].opts[answers[qi]].s];
+            }
+        }
+        userVector.push(LEVEL_FROM_SCORE(score));
+        rawScores.push(score);
+    }
+
+    // 2. 计算与每个模板的距离
+    const distances = personalities.map((p, idx) => {
+        let totalDist = 0;
+        let zeroCount = 0;
+        let extremeCount = 0;
+
+        for (let i = 0; i < 15; i++) {
+            const userVal = SCORE_MAP[userVector[i]];
+            const templateVal = SCORE_MAP[p.v[i]];
+            const diff = Math.abs(userVal - templateVal);
+            totalDist += diff;
+            if (diff === 0) zeroCount++;
+            if (diff === 2) extremeCount++;
+        }
+
+        return {
+            index: idx,
+            personality: p,
+            distance: totalDist,
+            similarity: ((30 - totalDist) / 30 * 100).toFixed(1),
+            zeroCount,
+            extremeCount,
+            userVector: userVector,
+            rawScores: rawScores
+        };
+    });
+
+    // 3. 排序：距离优先 -> 零差维度数优先 -> 极端偏差少优先
+    distances.sort((a, b) => {
+        if (a.distance !== b.distance) return a.distance - b.distance;
+        if (a.zeroCount !== b.zeroCount) return b.zeroCount - a.zeroCount;
+        return a.extremeCount - b.extremeCount;
+    });
+
+    return distances[0];
+}
+
+// ==================== 显示结果 ====================
+function displayResult(result) {
+    const p = result.personality;
+
+    document.getElementById('resultName').textContent = p.n;
+    document.getElementById('resultCode').textContent = p.c;
+    document.getElementById('resultFullname').innerHTML = p.fn.replace(' —— ', '<br>');
+    document.getElementById('resultTech').textContent = '对应技术：' + p.t;
+    document.getElementById('similarityBadge').textContent = '相似度 ' + result.similarity + '%';
+    document.getElementById('resultQuote').textContent = p.qt.replace(/[""''「」『』《》]/g, '');
+    const imgMap = {'超导冰': 'cdb.jpg', '潮汐守望者': 'cxswz.jpg', '地心探险家': 'dxtxj.jpg', '核聚变梦想家': 'hjbmxj.jpg', '空气炸锅': 'kqzg.jpg', '浪里白条': 'llbt.jpg', '锂想家': 'lxj.jpg', '钠么棒': 'nmb.jpg', '氢骑士': 'qqs.jpg', '热力绅士': 'rlss.jpg', '生物炼金师': 'swljs.jpg', '陀螺王': 'tlw.jpg', '稳如泰山': 'wrts.jpg', '阳光收集者': 'ygsjz.jpg', '液态侠': 'ytx.jpg', '追风少年': 'zfsn.jpg'};
+    document.getElementById('resultImage').src = 'pictures/' + (imgMap[p.n] || '1.png');
+    document.getElementById('personalityDesc').innerHTML = p.p;
+    document.getElementById('techInfo').innerHTML = p.ti;
+    document.getElementById('partnerName').textContent = p.pn;
+    document.getElementById('partnerDesc').textContent = p.pd;
+
+    showDimensionScores(result.userVector, result.rawScores);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ==================== 详细维度评分 ====================
+const DIM_FULL_INFO = {'model_names': ['能量倾向模型', '调节风格模型', '交互模式模型', '时间视野模型', '资源哲学模型'], 'model_questions': ['你的能量是向外释放还是向内保存？', '你如何应对外界变化和压力？', '你与世界如何互动？', '你看多远、走多快？', '你如何看待自己拥有的资源？'], 'dimensions': [[{'code': 'EO1', 'name': '输出倾向', 'L': '含蓄内敛', 'M': '适度表达', 'H': '热情外放'}, {'code': 'EO2', 'name': '影响半径', 'L': '关注自身', 'M': '关注身边', 'H': '关注世界'}, {'code': 'EO3', 'name': '能量密度', 'L': '细水长流', 'M': '张弛有度', 'H': '瞬间爆发'}], [{'code': 'RE1', 'name': '调峰能力', 'L': '随波逐流', 'M': '适度调节', 'H': '主动平衡'}, {'code': 'RE2', 'name': '转换效率', 'L': '重过程体验', 'M': '兼顾效率', 'H': '重结果效率'}, {'code': 'RE3', 'name': '稳定系数', 'L': '情绪波动', 'M': '有起有伏', 'H': '稳如磐石'}], [{'code': 'IM1', 'name': '主动-被动', 'L': '被动响应', 'M': '相机而动', 'H': '主动出击'}, {'code': 'IM2', 'name': '独立-依赖', 'L': '独立运作', 'M': '协同配合', 'H': '高度依赖'}, {'code': 'IM3', 'name': '界面友好度', 'L': '高冷封闭', 'M': '适度开放', 'H': '亲和透明'}], [{'code': 'TH1', 'name': '响应速度', 'L': '慢热深思', 'M': '适度节奏', 'H': '快速反应'}, {'code': 'TH2', 'name': '储能时长', 'L': '短期记忆', 'M': '中期规划', 'H': '长期主义'}, {'code': 'TH3', 'name': '未来愿景', 'L': '活在当下', 'M': '中期目标', 'H': '终极理想'}], [{'code': 'RP1', 'name': '资源态度', 'L': '取用不竭', 'M': '适度开发', 'H': '精打细算'}, {'code': 'RP2', 'name': '循环倾向', 'L': '线性消耗', 'M': '部分循环', 'H': '闭环永续'}, {'code': 'RP3', 'name': '风险偏好', 'L': '规避风险', 'M': '适度冒险', 'H': '拥抱未知'}]]};
+
+function showDimensionScores(userVector, rawScores) {
+    let html = '';
+    const dimOrder = ['EO1','EO2','EO3','RE1','RE2','RE3','IM1','IM2','IM3','TH1','TH2','TH3','RP1','RP2','RP3'];
+    const levelNames = {'L':'低(L)','M':'中(M)','H':'高(H)'};
+    
+    for (let mi = 0; mi < 5; mi++) {
+        html += `<div style="margin-bottom:25px;padding:20px;background:#f8f9fa;border-radius:12px;border-left:4px solid #4CAF50;">
+            <div style="margin-bottom:15px;">
+                <h4 style="color:#2E7D32;margin-bottom:4px;font-size:1.1rem;">模型${mi+1}：${DIM_FULL_INFO.model_names[mi]}</h4>
+                <div style="font-size:0.85rem;color:#666666;padding-left:4px;">${DIM_FULL_INFO.model_questions[mi]}</div>
+            </div>`;
+        
+        for (let di = 0; di < 3; di++) {
+            const dimIdx = mi * 3 + di;
+            const dimCode = dimOrder[dimIdx];
+            const level = userVector[dimIdx];
+            const rawScore = rawScores ? rawScores[dimIdx] : '?';
+            const info = DIM_FULL_INFO.dimensions[mi][di];
+            
+            // 显示两道题的得分详情
+            const q1Score = Math.min(rawScore, 2);  // 第一题得分 0/1/2
+            const q2Score = Math.max(0, rawScore - 2);  // 第二题得分 0/1/2 (简化展示)
+            // 更准确的方式：根据总分反推可能的组合
+            const scoreText = `${rawScore}/4分`;
+            
+            // 得分条颜色
+            let barColor = '#FFC107';  // 默认黄色(中等)
+            if (rawScore <= 1) barColor = '#FF7043';  // 低-橙红
+            else if (rawScore >= 3) barColor = '#66BB6A';  // 高-绿色
+            
+            html += `<div style="margin:10px 0;padding:12px 15px;background:white;border-radius:8px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <div><strong>${dimCode} ${info.name}</strong> &nbsp; <span style="color:#666;font-size:0.9rem;">${levelNames[level]}</span></div>
+                    <div style="color:#1976D2;font-weight:700;font-size:1.05rem;">${scoreText}</div>
+                </div>
+                <div style="background:#e0e0e0;border-radius:4px;height:8px;overflow:hidden;">
+                    <div style="background:${barColor};height:100%;width:${rawScore/4*100}%;border-radius:4px;transition:width 0.5s;"></div>
+                </div>
+            </div>`;
+        }
+        html += '</div>';
+    }
+    document.getElementById('dimensionScoreContent').innerHTML = html;
+}
+
+function toggleScore() {
+    const toggle = document.getElementById('scoreToggle');
+    const content = document.getElementById('scoreContent');
+    toggle.classList.toggle('open');
+    content.classList.toggle('show');
+}
+
+// ==================== 附录折叠 ====================
+function toggleAppendix() {
+    const toggle = document.getElementById('appendixToggle');
+    const content = document.getElementById('appendixContent');
+    toggle.classList.toggle('open');
+    content.classList.toggle('show');
+}
+
+// ==================== 分享功能 ====================
+
+
+// 键盘快捷键支持
+document.addEventListener('keydown', function(e) {
+    if (document.getElementById('testPage').style.display !== 'none') {
+        if (e.key >= '1' && e.key <= '3') {
+            selectOption(parseInt(e.key) - 1);
+        } else if (e.key === 'Enter' || e.key === 'ArrowRight') {
+            if (!document.getElementById('nextBtn').disabled) nextQuestion();
+        } else if (e.key === 'ArrowLeft') {
+            if (!document.getElementById('prevBtn').disabled) prevQuestion();
+        }
+    }
+});
+</script>
+</body>
+</html>
