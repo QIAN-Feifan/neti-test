@@ -186,6 +186,45 @@
             box-shadow: 0 4px 16px rgba(76,175,80,0.3);
         }
         .retake-btn:hover { transform: translateY(-2px); }
+        /* 分享结果按钮 */
+        .share-btn {
+            padding: 14px 48px; border: none; border-radius: 12px; font-size: 1.05rem;
+            font-weight: 600; cursor: pointer; transition: all 0.3s;
+            background: linear-gradient(135deg, #1976D2, #42A5F5); color: white;
+            box-shadow: 0 4px 16px rgba(25,118,210,0.3); margin-right: 15px;
+        }
+        .share-btn:hover { transform: translateY(-2px); }
+
+        /* 海报弹窗 */
+        .poster-modal {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 2000; background: rgba(0,0,0,0.6);
+            align-items: center; justify-content: center;
+        }
+        .poster-modal.show { display: flex; }
+        .poster-modal-content {
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .poster-modal-inner {
+            position: relative; max-width: 90vw; max-height: 90vh;
+            animation: posterFadeIn 0.3s ease;
+        }
+        @keyframes posterFadeIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+        .poster-close {
+            position: absolute; top: -40px; right: 0; width: 32px; height: 32px;
+            border: none; background: white; color: #333; font-size: 22px; font-weight: bold;
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 2001;
+        }
+        .poster-close:hover { background: #f0f0f0; }
+        .poster-img { max-width: 100%; max-height: 80vh; border-radius: 12px; display: block; }
+        .poster-hint {
+            text-align: center; margin-top: 15px; color: rgba(255,255,255,0.85);
+            font-size: 0.9rem; letter-spacing: 1px;
+        }
+
+
 
         /* 加载遮罩 */
         .loading-overlay {
@@ -299,8 +338,21 @@
         </div>
         
         <div class="result-actions">
+            <button class="share-btn" onclick="generatePoster()">分享结果</button>
             <button class="retake-btn" onclick="retakeTest()">重新测试</button>
         </div>
+    </div>
+</div>
+
+
+<!-- 海报分享弹窗 -->
+<div class="poster-modal" id="posterModal" onclick="closePoster(event)">
+    <div class="poster-modal-content">
+        <div class="poster-modal-inner" onclick="event.stopPropagation()">
+            <button class="poster-close" onclick="closePoster()">&times;</button>
+            <img class="poster-img" id="posterImg" alt="NETI人格海报">
+        </div>
+        <p class="poster-hint">长按图片即可保存</p>
     </div>
 </div>
 
@@ -786,6 +838,353 @@ function toggleAppendix() {
 
 // ==================== 分享功能 ====================
 
+
+
+
+// ==================== 海报生成 ====================
+let currentPersonality = null;
+
+// 在displayResult中保存当前人格数据供海报使用
+const _origDisplayResult = displayResult;
+displayResult = function(result) {
+    currentPersonality = result.personality;
+    _origDisplayResult(result);
+};
+
+// roundRect polyfill (兼容旧浏览器)
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+        if (typeof r === 'number') r = [r, r, r, r];
+        const [tl, tr, br, bl] = r;
+        this.moveTo(x + tl, y);
+        this.lineTo(x + w - tr, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + tr);
+        this.lineTo(x + w, y + h - br);
+        this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+        this.lineTo(x + bl, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - bl);
+        this.lineTo(x, y + tl);
+        this.quadraticCurveTo(x, y, x + tl, y);
+        this.closePath();
+    };
+}
+
+function drawStar(ctx, cx, cy, spikes, outerR, innerR, fill, stroke) {
+    ctx.beginPath();
+    for (var i = 0; i < spikes * 2; i++) {
+        var r = i % 2 === 0 ? outerR : innerR;
+        var a = (Math.PI / spikes) * i - Math.PI / 2;
+        var x = cx + r * Math.cos(a);
+        var y = cy + r * Math.sin(a);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 3; ctx.stroke(); }
+}
+
+// ==================== 新野兽派海报生成 ====================
+function generatePoster() {
+    if (!currentPersonality) { alert('请先完成测试'); return; }
+    const p = currentPersonality;
+
+    const W = 750, H = 1050;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // ═══ 新野兽派配色 ═══
+    const isStorage = p.camp === '储能';
+    const INK = '#111111';
+    const YELLOW = '#FFEB3B';
+    const PINK = '#FF6B9D';
+    const GREEN = '#4CAF50';
+    const ACCENT = isStorage ? '#1A237E' : '#E65100';        // 阵营主色
+    const ACCENT_LIGHT = isStorage ? '#42A5F5' : '#FFB300';  // 阵营亮色
+
+    // ═══ 背景：奶油白 + 粗黑边主卡片 ═══
+    ctx.fillStyle = '#FFFDF5';
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 5;
+    ctx.strokeRect(22, 22, W - 44, H - 44);
+
+    // 左上斜条纹装饰
+    ctx.fillStyle = ACCENT;
+    for (let i = 0; i < 7; i++) {
+        ctx.beginPath();
+        ctx.moveTo(22, 22 + i * 20);
+        ctx.lineTo(22 + 16, 22 + i * 20);
+        ctx.lineTo(22 + 16 + 110, 22 + i * 20 - 110);
+        ctx.lineTo(22 + 110, 22 + i * 20 - 110);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    // 右上角黄色圆形贴纸
+    ctx.fillStyle = YELLOW;
+    ctx.beginPath();
+    ctx.arc(W - 85, 66, 30, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // ═══ 标题块：黄底黑边硬阴影 ═══
+    ctx.font = '800 22px "Microsoft YaHei", sans-serif';
+    const titleText = '你的 NETI 人格类型是';
+    const tW = ctx.measureText(titleText).width + 44;
+    const tX = (W - tW) / 2;
+    const tY = 58;
+    ctx.fillStyle = INK;
+    ctx.fillRect(tX + 6, tY + 6, tW, 44);
+    ctx.fillStyle = YELLOW;
+    ctx.fillRect(tX, tY, tW, 44);
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(tX, tY, tW, 44);
+    ctx.fillStyle = INK;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(titleText, W / 2, tY + 24);
+
+    // ═══ 中文名：超大黑体 + 错位色块 + 硬阴影 ═══
+    ctx.font = '900 70px "Microsoft YaHei", sans-serif';
+    const nW = ctx.measureText(p.n).width;
+    const nX = W / 2 - nW / 2;
+    const nY = 142;
+    ctx.fillStyle = ACCENT_LIGHT;
+    ctx.fillRect(nX - 22, nY - 18, nW + 44, 106);
+    ctx.fillStyle = INK;
+    ctx.fillText(p.n, W / 2 + 6, nY + 42);
+    ctx.fillStyle = '#FFF';
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 3;
+    ctx.strokeText(p.n, W / 2, nY + 36);
+    ctx.fillText(p.n, W / 2, nY + 36);
+
+    // ═══ 代码条：深色底白字 ═══
+    ctx.font = '800 26px "Courier New", monospace';
+    const codeText = p.c.split('').join('  ');
+    const cW = ctx.measureText(codeText).width + 56;
+    const cX = (W - cW) / 2;
+    ctx.fillStyle = INK;
+    ctx.fillRect(cX + 6, 252, cW, 48);
+    ctx.fillStyle = ACCENT;
+    ctx.fillRect(cX, 246, cW, 48);
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(cX, 246, cW, 48);
+    ctx.fillStyle = '#FFF';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(codeText, W / 2, 272);
+
+    // ═══ 人格画像：白底黑边硬阴影 + 微旋转 ═══
+    const imgSize = 400;
+    const imgX = (W - imgSize) / 2;
+    const imgY = 318;
+    const rot = -0.03;
+
+    // 旋转坐标系绘制底座
+    ctx.save();
+    ctx.translate(W / 2, imgY + imgSize / 2);
+    ctx.rotate(rot);
+    ctx.translate(-W / 2, -(imgY + imgSize / 2));
+    ctx.fillStyle = INK;
+    ctx.fillRect(imgX + 12, imgY + 12, imgSize, imgSize);
+    ctx.fillStyle = '#FFF';
+    ctx.fillRect(imgX, imgY, imgSize, imgSize);
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 6;
+    ctx.strokeRect(imgX, imgY, imgSize, imgSize);
+    ctx.restore();
+
+    // 画像左下角粉色贴纸
+    ctx.fillStyle = PINK;
+    ctx.beginPath();
+    ctx.arc(imgX + 46, imgY + imgSize - 46, 31, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.fillStyle = INK;
+    ctx.font = '900 15px "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('NETI', imgX + 46, imgY + imgSize - 45);
+
+    // ═══ 下方内容数据准备 ═══
+    const imgMap = {'超导冰':'cdb.jpg','潮汐守望者':'cxswz.jpg','地心探险家':'dxtxj.jpg','核聚变梦想家':'hjbmxj.jpg','空气炸锅':'kqzg.jpg','浪里白条':'llbt.jpg','锂想家':'lxj.jpg','钠么棒':'nmb.jpg','氢骑士':'qqs.jpg','热力绅士':'rlss.jpg','生物炼金师':'swljs.jpg','陀螺王':'tlw.jpg','稳如泰山':'wrts.jpg','阳光收集者':'ygsjz.jpg','液态侠':'ytx.jpg','追风少年':'zfsn.jpg'};
+    const personalityImg = new Image();
+    const imgUrl = 'pictures/' + (imgMap[p.n] || '1.png');
+    const simEl = document.getElementById('similarityBadge');
+    const similarityText = simEl ? simEl.textContent : '相似度 --%';
+    const mottoText = p.qt ? p.qt.replace(/[""''「」『』《》]/g, '') : '';
+    const campText = p.camp === '储能' ? '储能型人格' : '发电型人格';
+    const techText = '对应技术：' + (p.t || '');
+
+    personalityImg.onload = function() {
+        try {
+            ctx.save();
+            ctx.translate(W / 2, imgY + imgSize / 2);
+            ctx.rotate(rot);
+            ctx.translate(-W / 2, -(imgY + imgSize / 2));
+            ctx.drawImage(personalityImg, imgX, imgY, imgSize, imgSize);
+            ctx.restore();
+            drawPosterLower(ctx, W, H, campText, isStorage, techText, similarityText, mottoText, canvas);
+        } catch(e) {
+            drawPosterLower(ctx, W, H, campText, isStorage, techText, similarityText, mottoText, canvas);
+        }
+    };
+    personalityImg.onerror = function() {
+        drawPosterLower(ctx, W, H, campText, isStorage, techText, similarityText, mottoText, canvas);
+    };
+    personalityImg.src = imgUrl;
+}
+
+function drawPosterLower(ctx, W, H, campText, campIsStorage, techText, similarityText, mottoText, canvas) {
+    const isStorage = campIsStorage;
+    const INK = '#111111';
+    const YELLOW = '#FFEB3B';
+    const GREEN = '#4CAF50';
+    const ACCENT = isStorage ? '#1A237E' : '#E65100';
+
+    // ═══ 三个标签：新野兽派按钮（横排居中）═══
+    const tagY = 750;
+    const tagH = 48;
+    const gap = 24;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '800 15px "Microsoft YaHei", sans-serif';
+
+    // 先测量三个标签宽度，计算总宽后整体居中
+    let cw = ctx.measureText(campText).width + 38;
+    let tw = ctx.measureText(techText).width + 38;
+    let sw = ctx.measureText(similarityText).width + 38;
+    const totalW = cw + tw + sw + gap * 2;
+    let cx = (W - totalW) / 2;
+
+    // 阵营（实色底白字）
+    ctx.fillStyle = INK; ctx.fillRect(cx + 6, tagY + 6, cw, tagH);
+    ctx.fillStyle = ACCENT; ctx.fillRect(cx, tagY, cw, tagH);
+    ctx.strokeStyle = INK; ctx.lineWidth = 4; ctx.strokeRect(cx, tagY, cw, tagH);
+    ctx.fillStyle = '#FFF'; ctx.fillText(campText, cx + cw / 2, tagY + tagH / 2);
+
+    // 技术（白底黑字）
+    cx += cw + gap;
+    ctx.fillStyle = INK; ctx.fillRect(cx + 6, tagY + 6, tw, tagH);
+    ctx.fillStyle = '#FFF'; ctx.fillRect(cx, tagY, tw, tagH);
+    ctx.strokeStyle = INK; ctx.lineWidth = 4; ctx.strokeRect(cx, tagY, tw, tagH);
+    ctx.fillStyle = INK; ctx.fillText(techText, cx + tw / 2, tagY + tagH / 2);
+
+    // 相似度（黄底黑字）
+    cx += tw + gap;
+    ctx.fillStyle = INK; ctx.fillRect(cx + 6, tagY + 6, sw, tagH);
+    ctx.fillStyle = YELLOW; ctx.fillRect(cx, tagY, sw, tagH);
+    ctx.strokeStyle = INK; ctx.lineWidth = 4; ctx.strokeRect(cx, tagY, sw, tagH);
+    ctx.fillStyle = INK; ctx.fillText(similarityText, cx + sw / 2, tagY + tagH / 2);
+
+    // ═══ 格言：黄色荧光高亮块 ═══
+    ctx.font = '800 30px "Microsoft YaHei", sans-serif';
+    const mW = ctx.measureText(mottoText).width;
+    const quoteY = 828;
+    ctx.fillStyle = YELLOW;
+    ctx.fillRect(W / 2 - mW / 2 - 18, quoteY - 8, mW + 36, 52);
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(W / 2 - mW / 2 - 18, quoteY - 8, mW + 36, 52);
+    ctx.fillStyle = INK;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(mottoText, W / 2, quoteY + 18);
+
+    // ═══ 左下角绿色星形装饰 ═══
+    drawStar(ctx, 78, H - 82, 5, 30, 13, GREEN, INK);
+
+    // ═══ 二维码：右下角白底黑边硬阴影 ═══
+    const qrSize = 105;
+    const qrX = W - qrSize - 48;
+    const qrAreaY = H - 150;
+    ctx.fillStyle = INK;
+    ctx.fillRect(qrX + 7, qrAreaY + 7, qrSize, qrSize);
+    ctx.fillStyle = '#FFF';
+    ctx.fillRect(qrX, qrAreaY, qrSize, qrSize);
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(qrX, qrAreaY, qrSize, qrSize);
+
+    ctx.fillStyle = INK;
+    ctx.font = '800 20px "Microsoft YaHei", sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('扫码参与测试', qrX - 14, qrAreaY + qrSize);
+
+    // 二维码图片（异步加载，失败不影响海报显示）
+    const qrImg = new Image();
+    qrImg.onload = function() {
+        try { ctx.drawImage(qrImg, qrX, qrAreaY, qrSize, qrSize); } catch(e) {}
+        showPoster(canvas);
+    };
+    qrImg.onerror = function() { showPoster(canvas); };
+    qrImg.src = 'pictures/qr.png';
+
+    // ═══ 底部：条码装饰 + 品牌文字 ═══
+    ctx.fillStyle = INK;
+    for (let i = 0; i < 9; i++) {
+        const bw = i % 3 === 0 ? 5 : 11;
+        ctx.fillRect(44 + i * 18, H - 56, bw, 12);
+    }
+    ctx.fillStyle = '#555';
+    ctx.font = '700 13px "Courier New", monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('NETI NEW ENERGY TYPE INDICATOR', 44, H - 36);
+
+    // 海报主体已画完，立即显示（二维码加载完成后自动刷新）
+    showPoster(canvas);
+}
+
+
+function showPoster(canvas) {
+    const modal = document.getElementById('posterModal');
+    const img = document.getElementById('posterImg');
+    img.src = canvas.toDataURL('image/png', 1.0);
+    modal.classList.add('show');
+}
+
+function closePoster(e) {
+    if (e && e.target !== e.currentTarget && !e.target.classList.contains('poster-close')) return;
+    document.getElementById('posterModal').classList.remove('show');
+}
+
+// 辅助：圆角矩形填充
+function roundRectFill(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    ctx.fill();
+}
+
+// 辅助：文字自动换行
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split('');
+    let line = '';
+    let currentY = y;
+    for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i];
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && line !== '') {
+            ctx.fillText(line, x, currentY);
+            line = words[i];
+            currentY += lineHeight;
+        } else {
+            line = testLine;
+        }
+    }
+    ctx.fillText(line, x, currentY);
+}
 
 // ==================== 结果持久化 ====================
 function retakeTest() {
