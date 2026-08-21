@@ -1130,6 +1130,8 @@ function generatePoster() {
             ctx.clip();
             ctx.drawImage(neaLogo, logoCircleX - logoCircleR + 8, logoCircleY - logoCircleR + 8, (logoCircleR - 8) * 2, (logoCircleR - 8) * 2);
             ctx.restore();
+            // logo绘制完成后刷新海报显示
+            showPoster(canvas);
         } catch(e) {}
     };
     neaLogo.src = 'pictures/logo.png';
