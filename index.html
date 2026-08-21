@@ -177,6 +177,69 @@
         .letter-content { font-size: 1.05rem; line-height: 2; color: var(--text); text-align: justify; }
         .letter-signature { text-align: right; margin-top: 25px; font-style: italic; color: var(--text2); font-weight: 600; }
 
+        /* 解锁人格全图鉴 */
+        .gallery-section { margin-top: 25px; animation: fadeInUp 0.8s ease 0.6s backwards; }
+        .gallery-toggle {
+            background: linear-gradient(135deg, #7B1FA2, #9C27B0); color: white; border: none;
+            padding: 18px 30px; border-radius: var(--radius); font-size: 1.1rem; font-weight: 600;
+            cursor: pointer; width: 100%; display: flex; justify-content: space-between;
+            align-items: center; transition: all 0.3s; box-shadow: var(--shadow);
+        }
+        .gallery-toggle:hover { transform: translateY(-2px); }
+        .gallery-content {
+            display: none; background: var(--card-bg); border-radius: 0 0 var(--radius) var(--radius);
+            padding: 35px; box-shadow: var(--shadow); margin-top: -10px; animation: slideDown 0.4s ease;
+        }
+        .gallery-content.show { display: block; }
+        .gallery-intro { font-size: 1.05rem; line-height: 1.9; color: var(--text); margin-bottom: 25px; text-align: center; }
+        .gallery-intro .highlight { color: #7B1FA2; font-weight: 700; }
+        .qr-container { text-align: center; margin-bottom: 25px; }
+        .qr-container img { width: 180px; height: 180px; border-radius: 12px; border: 3px solid #E1BEE7; }
+        .quiz-section { margin-top: 20px; }
+        .quiz-item { background: #FAFAFA; border: 2px solid #E0E0E0; border-radius: 12px; padding: 22px 25px; margin-bottom: 18px; transition: all 0.3s; }
+        .quiz-item.correct { border-color: #4CAF50; background: #F1F8E9; }
+        .quiz-item.wrong { border-color: #F44336; background: #FFEBEE; }
+        .quiz-q { font-size: 1.05rem; font-weight: 600; margin-bottom: 14px; color: var(--text); line-height: 1.6; }
+        .quiz-opts { display: flex; flex-direction: column; gap: 10px; }
+        .quiz-opt {
+            display: flex; align-items: center; padding: 12px 16px; border: 2px solid #E0E0E0;
+            border-radius: 10px; cursor: pointer; transition: all 0.25s; font-size: 0.98rem;
+            background: white;
+        }
+        .quiz-opt:hover { border-color: #9C27B0; background: #F3E5F5; }
+        .quiz-opt.selected { border-color: #9C27B0; background: #EDE7F6; }
+        .quiz-opt input[type="radio"] { margin-right: 10px; accent-color: #9C27B0; width: 18px; height: 18px; flex-shrink: 0; }
+        .submit-btn {
+            display: block; margin: 20px auto 0; padding: 14px 48px; border: none; border-radius: 12px;
+            font-size: 1.08rem; font-weight: 700; cursor: pointer; transition: all 0.3s;
+            background: linear-gradient(135deg, #4CAF50, #45a049); color: white;
+            box-shadow: 0 4px 16px rgba(76,175,80,0.35);
+        }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(76,175,80,0.45); }
+        .quiz-result { display: none; margin-top: 25px; text-align: center; padding: 25px; border-radius: 12px; animation: fadeInUp 0.5s ease; }
+        .quiz-result.show { display: block; }
+        .quiz-result.success { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border: 2px solid #4CAF50; }
+        .quiz-result.fail { background: linear-gradient(135deg, #FFEBEE, #FFCDD2); border: 2px solid #F44336; }
+        .quiz-result-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 15px; }
+        .quiz-result.success .quiz-result-title { color: #2E7D32; }
+        .quiz-result.fail .quiz-result-title { color: #C62828; }
+        .personality-gallery { display: none; margin-top: 25px; }
+        .personality-gallery.show { display: block; }
+        .camp-label {
+            display: block; text-align: center; padding: 8px 24px; border-radius: 25px;
+            font-size: 1.1rem; font-weight: 700; letter-spacing: 3px; margin-bottom: 20px; color: white;
+        }
+        .camp-label.storage { background: linear-gradient(135deg, #1A237E, #3949AB); }
+        .camp-label.generation { background: linear-gradient(135deg, #E65100, #FF8F00); }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; margin-bottom: 30px; }
+        .gallery-card {
+            background: white; border: 2px solid #E0E0E0; border-radius: 14px;
+            padding: 16px 12px; text-align: center;
+        }
+        .gallery-card img { width: 130px; border-radius: 12px; object-fit: contain; margin-bottom: 10px; }
+        .gallery-card-name { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .gallery-card-code { font-size: 0.82rem; color: var(--text2); font-weight: 600; letter-spacing: 2px; }
+
         /* 重新测试按钮 */
         .result-actions { text-align: center; margin-top: 35px; }
         .retake-btn {
@@ -336,7 +399,61 @@
                 <div class="letter-signature">—— NEA全体成员 敬上</div>
             </div>
         </div>
-        
+
+        <!-- 解锁人格全图鉴 -->
+        <div class="gallery-section">
+            <button class="gallery-toggle" id="galleryToggle" onclick="toggleGallery()">
+                <span>解锁人格全图鉴</span><span class="arrow">▼</span>
+            </button>
+            <div class="gallery-content" id="galleryContent">
+                <div class="gallery-intro">
+                    直接扫描下方二维码或前往微信公众号<span class="highlight">"CUHKSZ新能源学会"</span>，观看<span class="highlight">"AI与能源的交汇：吴辰晔教授专访-第二弹"</span>后正确回答以下问题，即可解锁16人格全图鉴~
+                </div>
+                <div class="qr-container">
+                    <img src="pictures/qr_wx.png" alt="公众号二维码">
+                </div>
+                <div class="quiz-section" id="quizSection">
+                    <!-- Q1 -->
+                    <div class="quiz-item" id="q1">
+                        <div class="quiz-q">1. 在讨论小尺度（如单个电动汽车）电池充放电策略优化时，我们主要关注的是：</div>
+                        <div class="quiz-opts">
+                            <label class="quiz-opt"><input type="radio" name="gq1" value="A"> A. 配电网的容量上限</label>
+                            <label class="quiz-opt"><input type="radio" name="gq1" value="B"> B. 用户行为的不确定性</label>
+                            <label class="quiz-opt"><input type="radio" name="gq1" value="C"> C. 实时电价的数据缺失</label>
+                            <label class="quiz-opt"><input type="radio" name="gq1" value="D"> D. 光伏发电的间歇性</label>
+                        </div>
+                    </div>
+                    <!-- Q2 -->
+                    <div class="quiz-item" id="q2">
+                        <div class="quiz-q">2. 关于屋顶光伏+储能系统帮助用户省钱甚至赚钱，访谈中提到的具体AI应用方式是：</div>
+                        <div class="quiz-opts">
+                            <label class="quiz-opt"><input type="radio" name="gq2" value="A"> A. 预测光伏板发电量并调整倾斜角度</label>
+                            <label class="quiz-opt"><input type="radio" name="gq2" value="B"> B. 预测电池老化速度以优化更换周期</label>
+                            <label class="quiz-opt"><input type="radio" name="gq2" value="C"> C. 预测家庭用电负荷以减少电费支出</label>
+                            <label class="quiz-opt"><input type="radio" name="gq2" value="D"> D. 预测实时电价，通过低价买高价卖进行套利</label>
+                        </div>
+                    </div>
+                    <!-- Q3 -->
+                    <div class="quiz-item" id="q3">
+                        <div class="quiz-q">3. 在谈到AI赋能的绿色未来对普通人生活的影响时，吴教授认为最有可能出现的改变是什么？</div>
+                        <div class="quiz-opts">
+                            <label class="quiz-opt"><input type="radio" name="gq3" value="A"> A. 城市中将全面禁止燃油汽车上路行驶</label>
+                            <label class="quiz-opt"><input type="radio" name="gq3" value="B"> B. 购买新能源车将不再是一件随意自由的事情</label>
+                            <label class="quiz-opt"><input type="radio" name="gq3" value="C"> C. 所有家庭都必须安装屋顶光伏发电系统</label>
+                            <label class="quiz-opt"><input type="radio" name="gq3" value="D"> D. 电网公司将根据用户信用等级限制用电额度</label>
+                        </div>
+                    </div>
+                    <button class="submit-btn" onclick="submitQuiz()">提交</button>
+                </div>
+
+                <!-- 答题结果 -->
+                <div class="quiz-result" id="quizResult"></div>
+
+                <!-- 人格图鉴（答对才显示） -->
+                <div class="personality-gallery" id="personalityGallery"></div>
+            </div>
+        </div>
+
         <div class="result-actions">
             <button class="share-btn" onclick="generatePoster()">分享结果</button>
             <button class="retake-btn" onclick="retakeTest()">重新测试</button>
@@ -836,6 +953,73 @@ function toggleAppendix() {
     content.classList.toggle('show');
 }
 
+// ==================== 解锁人格全图鉴 ====================
+const galleryAnswers = { q1: 'B', q2: 'D', q3: 'B' };
+let galleryUnlocked = false;
+
+function toggleGallery() {
+    const toggle = document.getElementById('galleryToggle');
+    const content = document.getElementById('galleryContent');
+    toggle.classList.toggle('open');
+    content.classList.toggle('show');
+}
+
+function submitQuiz() {
+    // 收集答案
+    let allAnswered = true;
+    let correctCount = 0;
+    for (let i = 1; i <= 3; i++) {
+        const selected = document.querySelector(`input[name="gq${i}"]:checked`);
+        if (!selected) { allAnswered = false; continue; }
+        const itemEl = document.getElementById(`q${i}`);
+        itemEl.classList.remove('correct', 'wrong');
+        if (selected.value === galleryAnswers[`q${i}`]) {
+            correctCount++;
+            itemEl.classList.add('correct');
+        } else {
+            itemEl.classList.add('wrong');
+        }
+    }
+    if (!allAnswered) { alert('请先回答所有题目！'); return; }
+
+    const resultEl = document.getElementById('quizResult');
+    if (correctCount === 3) {
+        galleryUnlocked = true;
+        resultEl.className = 'quiz-result success show';
+        resultEl.innerHTML = '<div class="quiz-result-title">恭喜你，全部回答正确！</div>';
+        renderPersonalityGallery();
+    } else {
+        galleryUnlocked = false;
+        resultEl.className = 'quiz-result fail show';
+        resultEl.innerHTML = '<div class="quiz-result-title">很遗憾，未能答对所有题目，再试试吧~</div>';
+        document.getElementById('personalityGallery').className = 'personality-gallery';
+    }
+}
+
+function renderPersonalityGallery() {
+    const container = document.getElementById('personalityGallery');
+    const imgMap = {'超导冰':'cdb.jpg','潮汐守望者':'cxswz.jpg','地心探险家':'dxtxj.jpg','核聚变梦想家':'hjbmxj.jpg','空气炸锅':'kqzg.jpg','浪里白条':'llbt.jpg','锂想家':'lxj.jpg','钠么棒':'nmb.jpg','氢骑士':'qqs.jpg','热力绅士':'rlss.jpg','生物炼金师':'swljs.jpg','陀螺王':'tlw.jpg','稳如泰山':'wrts.jpg','阳光收集者':'ygsjz.jpg','液态侠':'ytx.jpg','追风少年':'zfsn.jpg'};
+
+    const storageP = personalities.filter(p => p.camp === '储能');
+    const generationP = personalities.filter(p => p.camp === '发电');
+
+    let html = '';
+    html += '<div class="camp-label storage">储能型人格</div><div class="gallery-grid">';
+    storageP.forEach(p => {
+        html += `<div class="gallery-card"><img src="pictures/${imgMap[p.n]||'1.png'}" alt="${p.n}"><div class="gallery-card-name">${p.n}</div><div class="gallery-card-code">${p.c}</div></div>`;
+    });
+    html += '</div>';
+
+    html += '<div class="camp-label generation">发电型人格</div><div class="gallery-grid">';
+    generationP.forEach(p => {
+        html += `<div class="gallery-card"><img src="pictures/${imgMap[p.n]||'1.png'}" alt="${p.n}"><div class="gallery-card-name">${p.n}</div><div class="gallery-card-code">${p.c}</div></div>`;
+    });
+    html += '</div>';
+
+    container.innerHTML = html;
+    container.className = 'personality-gallery show';
+}
+
 // ==================== 分享功能 ====================
 
 
@@ -923,14 +1107,32 @@ function generatePoster() {
         ctx.fill();
     }
 
-    // 右上角黄色圆形贴纸
+    // 右上角黄色圆形贴纸（放大，内嵌NEA logo）
+    const logoCircleR = 50;
+    const logoCircleX = W - 85;
+    const logoCircleY = 85;
     ctx.fillStyle = YELLOW;
     ctx.beginPath();
-    ctx.arc(W - 85, 66, 30, 0, Math.PI * 2);
+    ctx.arc(logoCircleX, logoCircleY, logoCircleR, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = INK;
     ctx.lineWidth = 4;
     ctx.stroke();
+
+    // 在圆内绘制NEA logo
+    const neaLogo = new Image();
+    neaLogo.onload = function() {
+        try {
+            // 裁剪为圆形区域
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(logoCircleX, logoCircleY, logoCircleR - 6, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(neaLogo, logoCircleX - logoCircleR + 8, logoCircleY - logoCircleR + 8, (logoCircleR - 8) * 2, (logoCircleR - 8) * 2);
+            ctx.restore();
+        } catch(e) {}
+    };
+    neaLogo.src = 'pictures/logo.png';
 
     // ═══ 标题块：黄底黑边硬阴影 ═══
     ctx.font = '800 22px "Microsoft YaHei", sans-serif';
@@ -1101,8 +1303,8 @@ function drawPosterLower(ctx, W, H, campText, campIsStorage, techText, similarit
     ctx.textBaseline = 'middle';
     ctx.fillText(mottoText, W / 2, quoteY + 18);
 
-    // ═══ 左下角绿色星形装饰 ═══
-    drawStar(ctx, 78, H - 82, 5, 30, 13, GREEN, INK);
+    // ═══ 左下角绿色星形装饰（同比放大）═══
+    drawStar(ctx, 82, H - 82, 5, 50, 22, GREEN, INK);
 
     // ═══ 二维码：右下角白底黑边硬阴影 ═══
     const qrSize = 105;
