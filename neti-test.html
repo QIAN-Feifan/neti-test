@@ -175,6 +175,8 @@
         .appendix-content.show { display: block; }
         .letter-title { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; text-align: center; }
         .letter-content { font-size: 1.05rem; line-height: 2; color: var(--text); text-align: justify; }
+        .letter-content p { margin-bottom: 1em; }
+        .letter-content p:last-child { margin-bottom: 0; }
         .letter-signature { text-align: right; margin-top: 25px; font-style: italic; color: var(--text2); font-weight: 600; }
 
         /* 解锁人格全图鉴 */
@@ -220,7 +222,7 @@
         .quiz-result.show { display: block; }
         .quiz-result.success { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border: 2px solid #4CAF50; }
         .quiz-result.fail { background: linear-gradient(135deg, #FFEBEE, #FFCDD2); border: 2px solid #F44336; }
-        .quiz-result-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 15px; }
+        .quiz-result-title { font-size: 1.15rem; font-weight: 800; margin-bottom: 15px; }
         .quiz-result.success .quiz-result-title { color: #2E7D32; }
         .quiz-result.fail .quiz-result-title { color: #C62828; }
         .personality-gallery { display: none; margin-top: 25px; }
@@ -241,7 +243,10 @@
         .gallery-card-code { font-size: 0.82rem; color: var(--text2); font-weight: 600; letter-spacing: 2px; }
 
         /* 重新测试按钮 */
-        .result-actions { text-align: center; margin-top: 35px; }
+        .result-actions {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            row-gap: 25px; column-gap: 15px; margin-top: 35px;
+        }
         .retake-btn {
             padding: 14px 48px; border: none; border-radius: 12px; font-size: 1.05rem;
             font-weight: 600; cursor: pointer; transition: all 0.3s;
@@ -254,7 +259,7 @@
             padding: 14px 48px; border: none; border-radius: 12px; font-size: 1.05rem;
             font-weight: 600; cursor: pointer; transition: all 0.3s;
             background: linear-gradient(135deg, #1976D2, #42A5F5); color: white;
-            box-shadow: 0 4px 16px rgba(25,118,210,0.3); margin-right: 15px;
+            box-shadow: 0 4px 16px rgba(25,118,210,0.3);
         }
         .share-btn:hover { transform: translateY(-2px); }
 
@@ -387,12 +392,14 @@
                 <span> 作者有话说</span><span class="arrow">▼</span>
             </button>
             <div class="appendix-content" id="appendixContent">
-                <h3 class="letter-title">亲爱的能源同行者——</h3>
+                <h3 class="letter-title">亲爱的能源同行者们——</h3>
                 <div class="letter-content">
-                    <p>无论你测出来是"稳如泰山"还是"核聚变梦想家"，请记住：这16种人格没有优劣之分，就像电网里没有"谁比谁更重要"。</p>
-                    <p>储能的人不焦虑——因为他们在低谷时积蓄势能，相信总有一天会升上去。</p>
-                    <p>发电的人不胆怯——因为他们生来就是要发光的，哪怕今天没有风、没有光。</p>
-                    <p>你不需要成为所有人，你只需要成为最适合电网的那个"节点"。你的"电压"可能忽高忽低，你的"频率"可能偶尔跑偏，但没关系——</p>
+                    <p>你们好！</p>
+                    <p><strong>首先说明一下：由于作者并非心理学专业学生，所以该测试的娱乐性大于专业性，请勿将其当成正规的心理测评。</strong></p>
+                    <p>NETI分为"发电型"和"储能型"，加起来一共有16种——当然，无论你测出来是"稳如泰山"还是"核聚变梦想家"，请记住：这16种人格没有优劣之分，就像电网里没有"谁比谁更重要"。</p>
+                    <p>发电的人不胆怯——他们生来便要释放能量，哪怕今天无风也无光。</p>
+                    <p>储能的人不焦虑——他们把每一次低迷都当作蓄势，相信浮沉自有其时。</p>
+                    <p>你无需十全十美。你只需要找到能源系统中最适合你自己的位置。你的"电压"可能忽高忽低，你的"频率"可能偶尔跑偏，但没关系——</p>
                     <p><strong>只要还在运转，你就已经为这个世界贡献了能量。</strong></p>
                     <p style="margin-top:20px;">愿你的能量，流向它该去的地方。</p>
                 </div>
@@ -963,6 +970,19 @@ function toggleGallery() {
     toggle.classList.toggle('open');
     content.classList.toggle('show');
 }
+
+// 选择题选项选中高亮：点击时给所在label添加selected类
+document.addEventListener('change', function(e) {
+    if (e.target && e.target.type === 'radio' && /^gq[123]$/.test(e.target.name)) {
+        const label = e.target.closest('.quiz-opt');
+        if (!label) return;
+        // 清除同组所有选项的高亮
+        document.querySelectorAll(`.quiz-opt input[name="${e.target.name}"]`).forEach(r => {
+            r.closest('.quiz-opt').classList.remove('selected');
+        });
+        label.classList.add('selected');
+    }
+});
 
 function submitQuiz() {
     // 收集答案
