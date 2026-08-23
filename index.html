@@ -1369,10 +1369,17 @@ function generatePoster() {
     ctx.textBaseline = 'middle';
     ctx.fillText(titleText, W / 2, tY + 24);
 
-    // ═══ 人格名：超大黑体 + 错位色块 + 硬阴影（按语言取词）═══
+    // ═══ 人格名：超大黑体 + 错位色块 + 硬阴影（按语言取词，超长自动缩小字号）═══
     const pName = L(p.n, ep.ne || p.n);
-    ctx.font = '900 70px "Microsoft YaHei", sans-serif';
-    const nW = ctx.measureText(pName).width;
+    let nFontSize = 70;
+    const nMaxW = W - 140;
+    ctx.font = '900 ' + nFontSize + 'px "Microsoft YaHei", sans-serif';
+    let nW = ctx.measureText(pName).width;
+    while (nW > nMaxW && nFontSize > 40) {
+        nFontSize -= 2;
+        ctx.font = '900 ' + nFontSize + 'px "Microsoft YaHei", sans-serif';
+        nW = ctx.measureText(pName).width;
+    }
     const nX = W / 2 - nW / 2;
     const nY = 142;
     ctx.fillStyle = ACCENT_LIGHT;
@@ -1472,19 +1479,29 @@ function drawPosterLower(ctx, W, H, campText, campIsStorage, techText, similarit
     const GREEN = '#4CAF50';
     const ACCENT = isStorage ? '#1A237E' : '#E65100';
 
-    // ═══ 三个标签：新野兽派按钮（横排居中）═══
+    // ═══ 三个标签：新野兽派按钮（横排居中，超长自动缩小字号）═══
     const tagY = 750;
     const tagH = 48;
     const gap = 24;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = '800 15px "Microsoft YaHei", sans-serif';
+    let tagFont = 15;
+    const tagMaxW = W - 40;
+    ctx.font = '800 ' + tagFont + 'px "Microsoft YaHei", sans-serif';
 
-    // 先测量三个标签宽度，计算总宽后整体居中
+    // 先测量三个标签宽度，超宽则缩小字号，计算总宽后整体居中
     let cw = ctx.measureText(campText).width + 38;
     let tw = ctx.measureText(techText).width + 38;
     let sw = ctx.measureText(similarityText).width + 38;
-    const totalW = cw + tw + sw + gap * 2;
+    let totalW = cw + tw + sw + gap * 2;
+    while (totalW > tagMaxW && tagFont > 10) {
+        tagFont -= 1;
+        ctx.font = '800 ' + tagFont + 'px "Microsoft YaHei", sans-serif';
+        cw = ctx.measureText(campText).width + 38;
+        tw = ctx.measureText(techText).width + 38;
+        sw = ctx.measureText(similarityText).width + 38;
+        totalW = cw + tw + sw + gap * 2;
+    }
     let cx = (W - totalW) / 2;
 
     // 阵营（实色底白字）
@@ -1507,19 +1524,53 @@ function drawPosterLower(ctx, W, H, campText, campIsStorage, techText, similarit
     ctx.strokeStyle = INK; ctx.lineWidth = 4; ctx.strokeRect(cx, tagY, sw, tagH);
     ctx.fillStyle = INK; ctx.fillText(similarityText, cx + sw / 2, tagY + tagH / 2);
 
-    // ═══ 格言：黄色荧光高亮块 ═══
-    ctx.font = '800 30px "Microsoft YaHei", sans-serif';
-    const mW = ctx.measureText(mottoText).width;
+    // ═══ 格言：黄色荧光高亮块（超长自动缩字号/换行）═══
+    let mFontSize = 30;
+    const mMaxW = W - 120;
+    let mLines = [mottoText];
+    ctx.font = '800 ' + mFontSize + 'px "Microsoft YaHei", sans-serif';
+    let mW = ctx.measureText(mottoText).width;
+    // 超宽则逐步缩小字号
+    while (mW > mMaxW && mFontSize > 20) {
+        mFontSize -= 2;
+        ctx.font = '800 ' + mFontSize + 'px "Microsoft YaHei", sans-serif';
+        mW = ctx.measureText(mottoText).width;
+    }
+    // 仍超宽则按单词换行
+    if (mW > mMaxW) {
+        mLines = [];
+        const words = mottoText.split(' ');
+        let line = '';
+        for (const w of words) {
+            const test = line ? line + ' ' + w : w;
+            if (ctx.measureText(test).width > mMaxW && line) {
+                mLines.push(line);
+                line = w;
+            } else {
+                line = test;
+            }
+        }
+        if (line) mLines.push(line);
+    }
+    // 计算最宽行确定背景块宽度
+    let mBlockW = 0;
+    mLines.forEach(l => { const lw = ctx.measureText(l).width; if (lw > mBlockW) mBlockW = lw; });
+    mBlockW += 36;
+    const mLineH = mFontSize * 1.3;
+    const mBlockH = mLineH * mLines.length + 20;
     const quoteY = 828;
     ctx.fillStyle = YELLOW;
-    ctx.fillRect(W / 2 - mW / 2 - 18, quoteY - 8, mW + 36, 52);
+    ctx.fillRect(W / 2 - mBlockW / 2, quoteY - 8, mBlockW, mBlockH);
     ctx.strokeStyle = INK;
     ctx.lineWidth = 4;
-    ctx.strokeRect(W / 2 - mW / 2 - 18, quoteY - 8, mW + 36, 52);
+    ctx.strokeRect(W / 2 - mBlockW / 2, quoteY - 8, mBlockW, mBlockH);
     ctx.fillStyle = INK;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(mottoText, W / 2, quoteY + 18);
+    const mStartY = quoteY - 8 + mBlockH / 2 - ((mLines.length - 1) * mLineH) / 2;
+    mLines.forEach((l, i) => {
+        ctx.fillText(l, W / 2, mStartY + i * mLineH);
+    });
 
     // ═══ 左下角绿色星形装饰（同比放大）═══
     drawStar(ctx, 82, H - 82, 5, 50, 22, GREEN, INK);
