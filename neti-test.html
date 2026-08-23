@@ -308,6 +308,16 @@
         .loading-text { margin-top: 20px; font-size: 1.1rem; color: var(--text2); }
         .hidden { display: none !important; }
 
+        /* 语言切换按钮 */
+        .lang-toggle {
+            position: fixed; top: 15px; right: 15px; z-index: 3000;
+            background: white; border: 2px solid #4CAF50; color: #2E7D32;
+            padding: 6px 18px; border-radius: 20px; font-size: 0.88rem;
+            font-weight: 700; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            transition: all 0.3s; font-family: inherit;
+        }
+        .lang-toggle:hover { background: #4CAF50; color: white; }
+
         @media (max-width: 768px) {
             .main-title { font-size: 2.2rem; }
             .question-card { padding: 25px; }
@@ -319,16 +329,19 @@
 </head>
 <body>
 
+<!-- 语言切换按钮（所有页面右上角固定） -->
+<button class="lang-toggle" id="langToggle" onclick="toggleLang()">English</button>
+
 <!-- 首页 -->
 <div class="home-page" id="homePage">
     <div class="container">
         <div class="logo-icon">⚡</div>
         <h1 class="main-title">NETI</h1>
-        <p class="sub-title">新能源人格测试<br><span style="font-size:0.9rem;color:#78909c;">New Energy Type Indicator</span></p>
-        <p style="color:var(--text2);max-width:500px;margin-bottom:40px;">
+        <p class="sub-title"><span data-i18n="homeSubTitle">新能源人格测试</span><br><span style="font-size:0.9rem;color:#78909c;">New Energy Type Indicator</span></p>
+        <p style="color:var(--text2);max-width:500px;margin-bottom:40px;" data-i18n-html="homeDesc">
             你是储能派还是发电派？你的能量如何流转？<br>30道题目，测出你的专属新能源人格
         </p>
-        <button class="start-btn" onclick="startTest()">开始测试</button>
+        <button class="start-btn" onclick="startTest()" data-i18n="startBtn">开始测试</button>
     </div>
 </div>
 
@@ -339,8 +352,8 @@
         <div class="progress-text" id="progressText">第 1 题 / 共 30 题</div>
         <div id="questionContainer"></div>
         <div class="nav-buttons">
-            <button class="nav-btn prev" id="prevBtn" onclick="prevQuestion()" disabled>上一题</button>
-            <button class="nav-btn view" id="viewResultBtn" onclick="showResult()" style="display:none;">查看结果</button>
+            <button class="nav-btn prev" id="prevBtn" onclick="prevQuestion()" disabled data-i18n="prevBtn">上一题</button>
+            <button class="nav-btn view" id="viewResultBtn" onclick="showResult()" style="display:none;" data-i18n="viewResultBtn">查看结果</button>
         </div>
     </div>
 </div>
@@ -349,7 +362,7 @@
 <div class="result-page" id="resultPage">
     <div class="container">
         <div class="result-header">
-            <div class="result-badge">你的 NETI 人格类型是</div>
+            <div class="result-badge" data-i18n="resultBadge">你的 NETI 人格类型是</div>
             <h1 class="result-name" id="resultName"></h1>
             <div class="result-code" id="resultCode"></div>
             <img class="result-image" id="resultImage" src="" alt="人格画像">
@@ -360,14 +373,14 @@
             <p class="result-quote" id="resultQuote"></p>
         </div>
         <div class="result-card">
-            <h2 class="card-title">核心人设画像</h2>
+            <h2 class="card-title" data-i18n="cardPortrait">核心人设画像</h2>
             <div class="card-content" id="personalityDesc"></div>
         </div>
 
         <!-- 详细维度评分 -->
         <div class="appendix-section" style="margin-top:25px;margin-bottom:25px;">
             <button class="appendix-toggle" id="scoreToggle" onclick="toggleScore()">
-                <span>详细维度评分</span>
+                <span data-i18n="scoreToggle">详细维度评分</span>
                 <span class="arrow">&#9660;</span>
             </button>
             <div class="appendix-content" id="scoreContent">
@@ -376,11 +389,11 @@
         </div>
 
         <div class="result-card">
-            <h2 class="card-title">对应技术科普</h2>
+            <h2 class="card-title" data-i18n="cardTech">对应技术科普</h2>
             <div class="card-content" id="techInfo"></div>
         </div>
         <div class="result-card">
-            <h2 class="card-title">最适合的搭档</h2>
+            <h2 class="card-title" data-i18n="cardPartner">最适合的搭档</h2>
             <div class="partner-section">
                 <div class="partner-name" id="partnerName"></div>
                 <div class="partner-desc" id="partnerDesc"></div>
@@ -389,11 +402,11 @@
         <!-- 附录 -->
         <div class="appendix-section">
             <button class="appendix-toggle" id="appendixToggle" onclick="toggleAppendix()">
-                <span> 作者有话说</span><span class="arrow">▼</span>
+                <span data-i18n="appendixToggle"> 作者有话说</span><span class="arrow">▼</span>
             </button>
             <div class="appendix-content" id="appendixContent">
-                <h3 class="letter-title">亲爱的能源同行者们——</h3>
-                <div class="letter-content">
+                <h3 class="letter-title" data-i18n="letterTitle">亲爱的能源同行者们——</h3>
+                <div class="letter-content" id="letterContent">
                     <p>你们好！</p>
                     <p><strong>首先说明一下：由于作者并非心理学专业学生，所以该测试的娱乐性大于专业性，请勿将其当成正规的心理测评。</strong></p>
                     <p>NETI分为"发电型"和"储能型"，加起来一共有16种——当然，无论你测出来是"稳如泰山"还是"核聚变梦想家"，请记住：这16种人格没有优劣之分，就像电网里没有"谁比谁更重要"。</p>
@@ -403,17 +416,17 @@
                     <p><strong>只要还在运转，你就已经为这个世界贡献了能量。</strong></p>
                     <p style="margin-top:20px;">愿你的能量，流向它该去的地方。</p>
                 </div>
-                <div class="letter-signature">—— NEA全体成员 敬上</div>
+                <div class="letter-signature" data-i18n="letterSignature">—— NEA全体成员 敬上</div>
             </div>
         </div>
 
         <!-- 解锁人格全图鉴 -->
         <div class="gallery-section">
             <button class="gallery-toggle" id="galleryToggle" onclick="toggleGallery()">
-                <span>解锁人格全图鉴</span><span class="arrow">▼</span>
+                <span data-i18n="galleryToggle">解锁人格全图鉴</span><span class="arrow">▼</span>
             </button>
             <div class="gallery-content" id="galleryContent">
-                <div class="gallery-intro">
+                <div class="gallery-intro" id="galleryIntro">
                     直接扫描下方二维码或前往微信公众号<span class="highlight">"CUHKSZ新能源学会"</span>，观看<span class="highlight">"AI与能源的交汇：吴辰晔教授专访-第二弹"</span>后正确回答以下问题，即可解锁16人格全图鉴~
                 </div>
                 <div class="qr-container">
@@ -422,35 +435,35 @@
                 <div class="quiz-section" id="quizSection">
                     <!-- Q1 -->
                     <div class="quiz-item" id="q1">
-                        <div class="quiz-q">1. 在讨论小尺度（如单个电动汽车）电池充放电策略优化时，我们主要关注的是：</div>
+                        <div class="quiz-q" data-i18n="quizQ1">1. 在讨论小尺度（如单个电动汽车）电池充放电策略优化时，我们主要关注的是：</div>
                         <div class="quiz-opts">
-                            <label class="quiz-opt"><input type="radio" name="gq1" value="A"> A. 配电网的容量上限</label>
-                            <label class="quiz-opt"><input type="radio" name="gq1" value="B"> B. 用户行为的不确定性</label>
-                            <label class="quiz-opt"><input type="radio" name="gq1" value="C"> C. 实时电价的数据缺失</label>
-                            <label class="quiz-opt"><input type="radio" name="gq1" value="D"> D. 光伏发电的间歇性</label>
+                            <label class="quiz-opt"><input type="radio" name="gq1" value="A"> <span data-i18n="quizQ1A">A. 配电网的容量上限</span></label>
+                            <label class="quiz-opt"><input type="radio" name="gq1" value="B"> <span data-i18n="quizQ1B">B. 用户行为的不确定性</span></label>
+                            <label class="quiz-opt"><input type="radio" name="gq1" value="C"> <span data-i18n="quizQ1C">C. 实时电价的数据缺失</span></label>
+                            <label class="quiz-opt"><input type="radio" name="gq1" value="D"> <span data-i18n="quizQ1D">D. 光伏发电的间歇性</span></label>
                         </div>
                     </div>
                     <!-- Q2 -->
                     <div class="quiz-item" id="q2">
-                        <div class="quiz-q">2. 关于屋顶光伏+储能系统帮助用户省钱甚至赚钱，访谈中提到的具体AI应用方式是：</div>
+                        <div class="quiz-q" data-i18n="quizQ2">2. 关于屋顶光伏+储能系统帮助用户省钱甚至赚钱，访谈中提到的具体AI应用方式是：</div>
                         <div class="quiz-opts">
-                            <label class="quiz-opt"><input type="radio" name="gq2" value="A"> A. 预测光伏板发电量并调整倾斜角度</label>
-                            <label class="quiz-opt"><input type="radio" name="gq2" value="B"> B. 预测电池老化速度以优化更换周期</label>
-                            <label class="quiz-opt"><input type="radio" name="gq2" value="C"> C. 预测家庭用电负荷以减少电费支出</label>
-                            <label class="quiz-opt"><input type="radio" name="gq2" value="D"> D. 预测实时电价，通过低价买高价卖进行套利</label>
+                            <label class="quiz-opt"><input type="radio" name="gq2" value="A"> <span data-i18n="quizQ2A">A. 预测光伏板发电量并调整倾斜角度</span></label>
+                            <label class="quiz-opt"><input type="radio" name="gq2" value="B"> <span data-i18n="quizQ2B">B. 预测电池老化速度以优化更换周期</span></label>
+                            <label class="quiz-opt"><input type="radio" name="gq2" value="C"> <span data-i18n="quizQ2C">C. 预测家庭用电负荷以减少电费支出</span></label>
+                            <label class="quiz-opt"><input type="radio" name="gq2" value="D"> <span data-i18n="quizQ2D">D. 预测实时电价，通过低价买高价卖进行套利</span></label>
                         </div>
                     </div>
                     <!-- Q3 -->
                     <div class="quiz-item" id="q3">
-                        <div class="quiz-q">3. 在谈到AI赋能的绿色未来对普通人生活的影响时，吴教授认为最有可能出现的改变是什么？</div>
+                        <div class="quiz-q" data-i18n="quizQ3">3. 在谈到AI赋能的绿色未来对普通人生活的影响时，吴教授认为最有可能出现的改变是什么？</div>
                         <div class="quiz-opts">
-                            <label class="quiz-opt"><input type="radio" name="gq3" value="A"> A. 城市中将全面禁止燃油汽车上路行驶</label>
-                            <label class="quiz-opt"><input type="radio" name="gq3" value="B"> B. 购买新能源车将不再是一件随意自由的事情</label>
-                            <label class="quiz-opt"><input type="radio" name="gq3" value="C"> C. 所有家庭都必须安装屋顶光伏发电系统</label>
-                            <label class="quiz-opt"><input type="radio" name="gq3" value="D"> D. 电网公司将根据用户信用等级限制用电额度</label>
+                            <label class="quiz-opt"><input type="radio" name="gq3" value="A"> <span data-i18n="quizQ3A">A. 城市中将全面禁止燃油汽车上路行驶</span></label>
+                            <label class="quiz-opt"><input type="radio" name="gq3" value="B"> <span data-i18n="quizQ3B">B. 购买新能源车将不再是一件随意自由的事情</span></label>
+                            <label class="quiz-opt"><input type="radio" name="gq3" value="C"> <span data-i18n="quizQ3C">C. 所有家庭都必须安装屋顶光伏发电系统</span></label>
+                            <label class="quiz-opt"><input type="radio" name="gq3" value="D"> <span data-i18n="quizQ3D">D. 电网公司将根据用户信用等级限制用电额度</span></label>
                         </div>
                     </div>
-                    <button class="submit-btn" onclick="submitQuiz()">提交</button>
+                    <button class="submit-btn" onclick="submitQuiz()" data-i18n="submitBtn">提交</button>
                 </div>
 
                 <!-- 答题结果 -->
@@ -462,8 +475,8 @@
         </div>
 
         <div class="result-actions">
-            <button class="share-btn" onclick="generatePoster()">分享结果</button>
-            <button class="retake-btn" onclick="retakeTest()">重新测试</button>
+            <button class="share-btn" onclick="generatePoster()" data-i18n="shareBtn">分享结果</button>
+            <button class="retake-btn" onclick="retakeTest()" data-i18n="retakeBtn">重新测试</button>
         </div>
     </div>
 </div>
@@ -476,17 +489,154 @@
             <button class="poster-close" onclick="closePoster()">&times;</button>
             <img class="poster-img" id="posterImg" alt="NETI人格海报">
         </div>
-        <p class="poster-hint">长按图片即可保存</p>
+        <p class="poster-hint" data-i18n="posterHint">长按图片即可保存</p>
     </div>
 </div>
 
 <!-- 加载遮罩 -->
 <div class="loading-overlay hidden" id="loadingOverlay">
     <div class="loading-spinner"></div>
-    <div class="loading-text">正在分析你的能量图谱...</div>
+    <div class="loading-text" data-i18n="loadingText">正在分析你的能量图谱...</div>
 </div>
 
 <script>
+// ==================== 中英文切换系统 ====================
+let currentLang = 'zh';
+const LANG_KEY = 'netiLang';
+try { currentLang = localStorage.getItem(LANG_KEY) || 'zh'; } catch(e) {}
+
+// 静态界面文本英文词典（key 与 data-i18n / data-i18n-html 对应）
+const I18N_UI = {
+    homeSubTitle: 'New Energy Personality Test',
+    homeDesc: 'Are you a storage type or a generation type? How does your energy flow?<br>30 questions to reveal your unique new energy personality',
+    startBtn: 'Start Test',
+    prevBtn: 'Previous',
+    viewResultBtn: 'View Result',
+    resultBadge: 'Your NETI Personality Type Is',
+    cardPortrait: 'Core Character Portrait',
+    scoreToggle: 'Detailed Dimension Scores',
+    cardTech: 'Related Technology',
+    cardPartner: 'Best Partner Match',
+    appendixToggle: ' A Note from the Author',
+    letterTitle: 'Dear Fellow Energy Enthusiasts——',
+    letterSignature: '—— With best regards, All NEA Members',
+    galleryToggle: 'Unlock the Full Personality Gallery',
+    submitBtn: 'Submit',
+    shareBtn: 'Share Result',
+    retakeBtn: 'Retake Test',
+    posterHint: 'Press and hold the image to save',
+    loadingText: 'Analyzing your energy profile...',
+    quizQ1: '1. When optimizing battery charge/discharge strategies at a small scale (e.g., a single EV), what do we mainly focus on?',
+    quizQ1A: 'A. The capacity limit of the distribution grid',
+    quizQ1B: 'B. The uncertainty of user behavior',
+    quizQ1C: 'C. Missing real-time electricity price data',
+    quizQ1D: 'D. The intermittency of solar PV generation',
+    quizQ2: '2. Regarding rooftop PV + storage systems helping users save or even earn money, what specific AI application was mentioned in the interview?',
+    quizQ2A: 'A. Predicting PV output and adjusting tilt angles',
+    quizQ2B: 'B. Predicting battery aging to optimize replacement cycles',
+    quizQ2C: 'C. Predicting household load to reduce electricity bills',
+    quizQ2D: 'D. Predicting real-time prices and arbitraging by buying low and selling high',
+    quizQ3: '3. When talking about how an AI-empowered green future affects ordinary people\'s lives, what change did Professor Wu think is most likely to happen?',
+    quizQ3A: 'A. Gasoline cars will be completely banned in cities',
+    quizQ3B: 'B. Buying a new-energy vehicle will no longer be a casual, free choice',
+    quizQ3C: 'C. Every household must install rooftop solar PV systems',
+    quizQ3D: 'D. Grid companies will limit electricity usage based on credit ratings',
+    galleryIntro: 'Scan the QR code below or follow the WeChat official account <span class="highlight">"CUHKSZ New Energy Society"（CUHKSZ新能源学会）</span>, watch <span class="highlight">"Where AI Meets Energy: Exclusive Interview with Prof. Wu Chenye \u2014 Episode 2"</span>, then answer the following questions correctly to unlock the full 16-personality gallery~',
+    letterParas: '<p>Hello!</p><p><strong>First of all: the author is not a psychology student, so this test is more for fun than for science \u2014 please don\'t treat it as a formal psychological assessment.</strong></p><p>NETI is divided into "Generation" and "Storage" types, 16 in total \u2014 of course, whether you get "Mountain of Stability" or "Fusion Dreamer", remember: none of these 16 personalities is better than another, just like in the power grid, no one is "more important" than anyone else.</p><p>Generators are not timid \u2014 they were born to release energy, even on days with no wind and no sun.</p><p>Storage types don\'t get anxious \u2014 they treat every downturn as charging, believing that ups and downs each have their own time.</p><p>You don\'t need to be perfect. You just need to find the position in the energy system that suits you best. Your "voltage" may fluctuate, your "frequency" may occasionally drift \u2014 but that\'s okay \u2014</p><p><strong>As long as you\'re still running, you\'ve already contributed energy to this world.</strong></p><p style="margin-top:20px;">May your energy flow where it belongs.</p>'
+};
+
+// 语言辅助：取当前语言的文本
+function L(zh, en) { return currentLang === 'en' ? en : zh; }
+
+function applyLang() {
+    // 切换按钮文字
+    const btn = document.getElementById('langToggle');
+    if (btn) btn.textContent = currentLang === 'zh' ? 'English' : '中文';
+    // 静态文本（首次切换前记录中文原文）
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        if (!el.dataset.zh) el.dataset.zh = el.textContent;
+        const key = el.getAttribute('data-i18n');
+        el.textContent = currentLang === 'en' && I18N_UI[key] ? I18N_UI[key] : el.dataset.zh;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        if (!el.dataset.zh) el.dataset.zh = el.innerHTML;
+        const key = el.getAttribute('data-i18n-html');
+        el.innerHTML = currentLang === 'en' && I18N_UI[key] ? I18N_UI[key] : el.dataset.zh;
+    });
+    // 作者有话说正文
+    const letter = document.getElementById('letterContent');
+    if (letter) {
+        if (!letter.dataset.zh) letter.dataset.zh = letter.innerHTML;
+        letter.innerHTML = currentLang === 'en' ? I18N_UI.letterParas : letter.dataset.zh;
+    }
+    // 图鉴引导文字
+    const gIntro = document.getElementById('galleryIntro');
+    if (gIntro) {
+        if (!gIntro.dataset.zh) gIntro.dataset.zh = gIntro.innerHTML;
+        gIntro.innerHTML = currentLang === 'en' ? I18N_UI.galleryIntro : gIntro.dataset.zh;
+    }
+    // 答题结果若已显示，按语言刷新
+    const quizResult = document.getElementById('quizResult');
+    if (quizResult && quizResult.classList.contains('show')) {
+        if (quizResult.classList.contains('success')) {
+            quizResult.innerHTML = '<div class="quiz-result-title">' + (currentLang === 'zh' ? '恭喜你，全部回答正确！' : 'Congratulations! All answers correct!') + '</div>';
+            renderPersonalityGallery();
+        } else {
+            quizResult.innerHTML = '<div class="quiz-result-title">' + (currentLang === 'zh' ? '很遗憾，未能答对所有题目，再试试吧~' : 'Sorry, not all answers are correct. Try again~') + '</div>';
+        }
+    }
+}
+
+function toggleLang() {
+    currentLang = currentLang === 'zh' ? 'en' : 'zh';
+    try { localStorage.setItem(LANG_KEY, currentLang); } catch(e) {}
+    applyLang();
+    // 按当前所在页面重新渲染动态内容
+    const homePage = document.getElementById('homePage');
+    const testPage = document.getElementById('testPage');
+    const resultPage = document.getElementById('resultPage');
+    if (resultPage.style.display === 'block') {
+        const result = calculateResult();
+        displayResult(result, true);
+    } else if (testPage.style.display === 'block') {
+        renderQuestion(true);
+    }
+}
+
+// 题目英文翻译（索引对应 questions 数组）
+const EN_QUESTIONS = {
+0:{q:"In social situations (e.g., parties, group chats), what is your usual state?",opts:["Quietly listen, rarely initiate topics","Depends \u2014 sometimes active, sometimes invisible","I\'m the vibe-maker; I love throwing jokes and leading the energy"]},
+1:{q:"When a friend is feeling down, what do you tend to do?",opts:["Stay quietly by their side, providing a calm and steady presence","Offer gentle comfort and moderate care","Do everything I can to make them laugh, pouring all my energy into them"]},
+2:{q:"When scrolling your phone / reading news, which content do you pay more attention to?",opts:["Personal growth, food and fun, small things around me","Updates from friends/colleagues and my close circle","Global affairs, macroeconomics, the future of humanity"]},
+3:{q:"In a team, which role do you usually play?",opts:["An executor who focuses on my own tasks","A hub that connects team members and passes information","A diplomat who speaks for the team and fights for resources"]},
+4:{q:"Which type of work/study mode are you better at?",opts:["Long-distance runner \u2014 steady low-power output, need long focus to get into the zone","Steady \u2014 moderate power, can handle daily load, occasional overtime is fine","Sprinter \u2014 short bursts of extreme power, miracles the night before a deadline"]},
+5:{q:"When you need to complete a big task, what is your go-to strategy?",opts:["Do a little every day, steady pace, never cram","Relaxed at first, sprint a bit at the end","Do nothing early on, then unleash all my energy at the last moment to bulldoze through"]},
+6:{q:"When your carefully planned day is completely disrupted by unexpected events, how do you react?",opts:["Give up entirely \u2014 today\'s just not my day, whatever","A bit annoyed, but I rearrange the order and get through it","Immediately activate the emergency plan \u2014 move the most important tasks to the best slots and take back control"]},
+7:{q:"Facing a serious shortage of time/energy (an \'energy shortage\'), you usually\u2026",opts:["Panic and power through everything somehow","Cut less important tasks and protect the core","Proactively optimize the process, schedule high-energy tasks at my peak, achieving perfect load shifting"]},
+8:{q:"After finishing a complex project, what matters most to you?",opts:["The growth and experience along the way \u2014 the outcome doesn\'t matter much","Both process and result matter; good enough is fine","The result is everything \u2014 not hitting the goal means it was all for nothing"]},
+9:{q:"Which life attitude do you admire more?",opts:["Life is about the experience \u2014 don\'t dwell on gains and losses, enjoy the scenery","Be happy, but also gain something","Input must have returns \u2014 I never accept inefficient effort"]},
+10:{q:"Which of the following best describes your recent emotional state?",opts:["Rollercoaster \u2014 happy one second, down the next, big swings","Occasional fluctuations, but generally under control","Extremely stable \u2014 almost nothing can affect my mindset, even if I\'m falling apart inside, it doesn\'t show"]},
+11:{q:"When your surroundings are noisy and chaotic, how does your work state change?",opts:["I lose it completely \u2014 can\'t focus at all","Affected, but headphones make it tolerable","Rock-solid \u2014 completely unbothered, I just keep going"]},
+12:{q:"When you come across an opportunity you\'re really interested in (a new project, a new friend), you usually\u2026",opts:["Watch quietly and wait for someone to invite me","Drop a hint and test the other person\'s reaction","Go after it immediately, like a wind turbine chasing the wind"]},
+13:{q:"When you travel/explore an unfamiliar place, which state fits you best?",opts:["Follow the guide strictly, passively receiving information","Improvise \u2014 play whatever I see","Like an explorer, actively hunting hidden spots \u2014 going wherever the \'wind\' blows"]},
+14:{q:"At work, which collaboration style do you prefer?",opts:["Thriving solo \u2014 I can handle everything independently and don\'t like being disturbed","Collaborate when needed, work independently otherwise","I need a team/external resources to function properly \u2014 zero motivation alone"]},
+15:{q:"When you hit a technical or life problem, your first reaction is\u2026",opts:["Grind it out myself, never ask for help","Look up resources and try to solve it myself","Immediately ask an expert or search online for a ready-made solution"]},
+16:{q:"In social settings with many strangers, what first impression do you usually give?",opts:["Aloof and distant, not easy to approach","Polite and warm, but keeping boundaries","Sunny and outgoing \u2014 instant chemistry with anyone"]},
+17:{q:"What type of person do you prefer to be friends with?",opts:["People who also enjoy solitude, no frequent contact needed, each at peace","Easy-going, pleasant, hang out occasionally","Passionate, open, social butterflies who can \'digest and convert\' anything like biomass"]},
+18:{q:"Facing an important decision (choosing a major, changing jobs), how fast do you decide?",opts:["Extremely slow \u2014 weigh trade-offs for months before committing","Take a while to seriously consider, but don\'t drag it out","Fast and decisive \u2014 intuition guides me to decide instantly, no hesitation"]},
+19:{q:"When a teacher/boss suddenly calls on you in a meeting or class, you usually\u2026",opts:["My mind goes blank \u2014 need several seconds of silence to squeeze out a few words","Think briefly and give a decent, middle-of-the-road answer","Speak right away with clear thoughts and rapid output"]},
+20:{q:"How long does your passion for something (a hobby, habit, or goal) usually last?",opts:["Three minutes of heat \u2014 once the novelty fades, I move to the next","A few months to about a year, depending","Years at a minimum \u2014 I can keep going across seasons, across years"]},
+21:{q:"How far ahead do you usually plan?",opts:["Never plan \u2014 go wherever life takes me","Monthly or quarterly plans, fairly short-sighted","Multi-year or even decade-plus grand life-cycle plans"]},
+22:{q:"Which statement best matches your view of life?",opts:["Carpe diem \u2014 today\'s happiness is the only real thing","Plan the next 3\u20135 years well and advance steadily","I live to achieve a grand, world-changing goal"]},
+23:{q:"Your definition of \'success\' is closest to\u2026",opts:["Being happier today than yesterday is the greatest success","Steadily hitting stage-by-stage goals according to my plan","Making an indelible contribution to human civilization and sustainable development"]},
+24:{q:"Your spending/financial habits are closest to\u2026",opts:["Paycheck to paycheck \u2014 spend as I please; money will come again","Moderate saving and planning, but not overly stingy","Meticulous budgeting, cherishing every cent like a lithium battery cherishes every gram of lithium"]},
+25:{q:"How do you view your own time resource?",opts:["There\'s always more time \u2014 wasting a bit doesn\'t matter","I do time management, but not strictly","Time is energy \u2014 every \'joule\' must be used efficiently, never idle"]},
+26:{q:"When dealing with old clothes/items, you usually\u2026",opts:["Throw them straight in the trash \u2014 out of sight, out of mind","Give them to friends or donate to recycling","Must find a way to repurpose them, or ensure they enter a professional recycling loop \u2014 never waste"]},
+27:{q:"After an important relationship (friendship/romance) ends, you tend to\u2026",opts:["Delete and block completely \u2014 never speak again","Leave it be, occasionally glance but never reach out","Transform it into kinship or calm friendship \u2014 \'recycling\' the relationship"]},
+28:{q:"If you had to choose a job, you\'d prefer\u2026",opts:["A government/stable corporate job \u2014 extremely stable, almost zero risk","A promising startup or new track with some risk","Frontier exploration work \u2014 even if 99% will fail, success would change the world"]},
+29:{q:"What kind of future do you hope to live in?",opts:["A safe, predictable future where everything is under control","A future with some challenges, but generally graspable","A future full of the unknown, disruptive opportunities, and infinite possibilities"]}
+};
+
 // ==================== 题库数据 ====================
 const questions = [
     // EO1 输出倾向
@@ -565,6 +715,26 @@ const questions = [
     { dim:"RP3 风险偏好", model:"资源哲学", q:"你更期待生活在一个怎样的未来里？",
       opts:[{l:"A",t:"安稳、可预测、一切都在掌控之中的未来",s:"L"},{l:"B",t:"有点挑战，但总体可以把握的未来",s:"M"},{l:"C",t:"充满未知、颠覆性机会和无限可能性的未来",s:"H"}] }
 ];
+
+// 人格英文翻译（key 为中文名；fe 为纯英文全称，英文版时显示）
+const EN_PERSONALITIES = {
+"稳如泰山":{ne:"Mountain of Stability",fe:"Pumped Water Storage Hero",te:"Pumped Hydro Storage",qte:"Charge at the lowest point, shine at the highest.",pne:"Fusion Dreamer",pde:"You catch his dreams floating in the clouds; he draws the pie for you.",p:`You are the quiet anchor of the team \u2014 the one everyone relies on but rarely notices. When everyone else is scrambling as deadlines hunt them down, you\'re quietly storing water; when the boss suddenly needs a proposal, you \'open the floodgates\' and amaze everyone. Others envy you for \'doing nothing all day yet somehow handling everything when it counts\' \u2014 but only you know that in those seemingly idle moments, you were charging.<br><br>You carry a nearly zen-like wisdom: lows are for storing energy, not for worrying. Your life rhythm breathes naturally \u2014 quiet and composed while storing, all-out when releasing. You never feel guilty about \'not being busy right now\', because you firmly believe: energy is conserved \u2014 don\'t grind now, shine all at once later.<br><br>Pumped hydro is humanity\'s earliest large-scale storage method, reminding us of a simple truth \u2014 the contrast of high and low is itself a form of power. The world needs youths who chase wind and sun, and also people like you who are willing to sink down before rising up. You\'re in no hurry, because you believe in potential energy.`,ti:`Pumped hydro storage works by converting between electrical energy and gravitational potential energy. A complete pumped-storage plant consists of two reservoirs at different elevations and reversible pump-turbine units. When the grid has surplus power (e.g., at night during low demand), the plant pumps water from the lower reservoir to the upper one, storing the electricity as the water\'s potential energy; when peak demand arrives, it opens the gates and lets the water rush down, driving the turbines to generate electricity.<br><br>Pumped hydro has an interesting operating feature \u2014 \'pump four, generate three\': for every 4 kWh used to pump water up, about 3 kWh comes back out when generating. This seemingly \'loss-making\' business actually profits from the \'time difference\' \u2014 storing energy when prices are low and discharging when prices are high, while providing the grid with peak shaving, frequency regulation, and reserve services.<br><br>Pumped hydro is the most mature and widely used large-scale storage technology today. Plant capacities can reach gigawatt levels, featuring large storage capacity, flexible operation, and rapid response \u2014 aptly nicknamed the \'giant power bank\'. It is also recognized as one of the safest, most stable, most environmentally friendly, and most economical storage methods, mainly serving grid peak shaving, frequency/voltage regulation, and emergency backup \u2014 an indispensable core component of the new power system.`},
+"空气炸锅":{ne:"Air Fryer",fe:"Compressed Air Storage Hero",te:"Compressed Air Energy Storage",qte:"A goofball in daily life, a nuke when it\'s time to explode.",pne:"Wave Rider",pde:"He stirs up the waves; you compress them into energy.",p:`You carry a charming sense of contrast. In daily life, you seem slow, harmless, and easygoing \u2014 like a hamster quietly hoarding supplies in an underground warehouse; people might even think you\'re a pushover. But only a very few know that inside that \'pot\' of yours, there\'s enough energy to blow the roof off.<br><br>You believe in long-termism to an almost frightening degree. You can endure a whole year of obscurity just for five minutes of glory. You don\'t fight or snatch \u2014 not because you lack ambition, but because your ambition needs a long fuse. You\'re the kind of person who \'scores average on every quiz but ranks top ten in the province on the final exam\'.<br><br>When air is compressed, molecules collide violently in a tiny space, each collision storing a longing to rebound. Life\'s dormant periods work the same way \u2014 the compressed hours will finally push open a sky of their own when released. Better than anyone, you know: endurance is not weakness \u2014 it\'s pressure accumulation in another form.`,ti:`Compressed air energy storage works similarly in spirit to pumped hydro. During low-demand periods, surplus electricity drives compressors to compress ambient air to high pressure (e.g., from 1 atmosphere to 140 atmospheres), storing it in underground salt caverns, abandoned mines, or specially made tanks. In this process, electrical energy is converted into the air\'s pressure energy and some heat. During peak demand, the high-pressure air is released, heated, and expanded through turbines to drive generators. The heat generated during compression can also be stored in thermal storage tanks and used later to heat the air, improving overall efficiency.<br><br>CAES is one of the most mature physical storage technologies after pumped hydro. It offers short construction periods, high power, long storage duration, high safety, and long lifespan. Using underground salt caverns as storage not only saves surface space but also recycles abandoned underground space. China\'s Jintan in Jiangsu has already built and commissioned a salt-cavern CAES plant.`},
+"锂想家":{ne:"Lithium Dreamer",fe:"Lithium-Ion Operator Noble",te:"Lithium-Ion Battery",qte:"King of density \u2014 there\'s a method to the grind.",pne:"Sodium Ace",pde:"He cuts costs, you boost efficiency \u2014 the \'best value-for-money\' CP of the new-energy world.",p:`You\'re the kind of person who slaps the word \'efficiency\' on their forehead no matter where they show up. Your energy density is extreme \u2014 in the same 24 hours, you can pack in what takes others 48 hours; in the same team, you alone count for three people. Like lithium ions, you shuttle rapidly between cathode and anode, never stopping for a second.<br><br>But you\'re not a mindless grinder. You\'re someone who \'grinds with a methodology\' \u2014 you know when to fast-charge and when to slow-discharge, managing your energy down to every \'joule\'. You hate dragging things out, hate inefficient meetings, hate all forms of \'resistance\'.<br><br>Lithium is one of the lightest metals on the periodic table, yet it holds the highest energy density. It reminds us \u2014 true power isn\'t about size, but about how much light and heat can burst from each unit of mass. You were born for high-speed operation, but remember: the higher the energy density, the more important heat dissipation. Giving yourself a little cooling time isn\'t wasted \u2014 it\'s how you avoid \'thermal runaway\'.`,ti:`A lithium-ion battery is an electrochemical storage device whose core working principle is called the \'intercalation reaction\'. Lithium ions shuttle between the cathode and anode: when charging, lithium ions de-intercalate from the cathode material (e.g., lithium iron phosphate), cross the electrolyte and separator, and intercalate into the structural gaps of the anode material (e.g., graphite) to be stored; when discharging, they de-intercalate from the anode and return to the cathode. This is like a library\'s \'book borrowing\' system \u2014 charging moves books from the cathode shelf to the anode shelf; discharging moves them back.<br><br>Among China\'s new storage technologies, lithium-ion batteries account for over 95% of installed capacity \u2014 the undisputed \'top stream\'. They feature high voltage, small size, light weight, high energy density, no pollution, and long cycle life. Lithium iron phosphate cells deliver about 90\u2013190 Wh/kg with cycle life exceeding 3,000 times. The technology is widely used in consumer electronics, EVs, and various storage plants.`},
+"液态侠":{ne:"Liquid Hero",fe:"Flow Liquid Oxygen Warrior",te:"Flow Battery",qte:"Slow and steady \u2014 who can outlast me?",pne:"Wind Chaser",pde:"He brings the speed; you bring the endurance.",p:`You\'re the most \'secure\' of all the personalities. Others race for explosive power, speed, and one-off wins \u2014 you just smile: \'I\'ll play with you for a lifetime.\' Your emotions are as stable as a still pool, your relationships as durable as electrolyte that can cycle 20,000 times.<br><br>You don\'t chase love at first sight or fast-food relationships. You believe everything worth having needs time to settle. You do take a while to get going, but once you\'re running, nobody can catch your endurance. You\'re that person who \'stays up through the whole project with everyone, and when everyone else collapses, you\'re still drawing diagrams\'.<br><br>The electrolyte in a flow battery sits quietly in its tanks \u2014 silent, but every cycle is precise. Isn\'t that a life philosophy too? Not every effort needs to pay off immediately; some energy is meant to be released slowly. You\'re like a river \u2014 you don\'t race for first place, only for the endless flow.`,ti:`A flow battery is an electrochemical storage technology completely different from lithium batteries. Taking the most mature all-vanadium flow battery as an example, its cathode and anode active materials are vanadium ions in different valence states \u2014 the positive electrolyte contains V(IV)/V(V), the negative electrolyte contains V(II)/V(III). The two electrolytes are stored in separate tanks and pumped through the battery stack in a circulating loop. During charge/discharge, vanadium ions of different valences undergo redox reactions on the electrodes, converting between electrical and chemical energy.<br><br>Flow batteries offer unique advantages: intrinsic safety, ultra-long lifespan, and decoupled capacity/power. Capacity and power can be designed independently \u2014 want more capacity? Enlarge the electrolyte tanks. Want more power? Add more stacks. Self-discharge is minimal \u2014 charge barely fades even after days or weeks of storage. Energy efficiency can exceed 80%, and cycle life surpasses 20,000 cycles.`},
+"陀螺王":{ne:"Spinning Top King",fe:"Speedy Power Inertia Navigator",te:"Flywheel Energy Storage",qte:"Spin me up \u2014 I am the center of the universe.",pne:"Mountain of Stability",pde:"He holds down the fort; you respond at lightning speed \u2014 the perfect \'still + moving\' duo.",p:`Your motto is one word: fast. Not just fast \u2014 so fast that before the people around you can react, you\'ve already finished round after round. You\'re like a high-speed spinning flywheel \u2014 response time measured in milliseconds; handling emergencies is your specialty.<br><br>You love high-frequency interaction, instant feedback, and everything \'short, sharp, and snappy\'. Long-term planning drives you crazy, but give you an urgent task \u2014 that\'s your home turf. You\'re the office \'firefighter\', the group-chat \'instant replier\', the \'portable emergency power supply\' among friends.<br><br>A flywheel spins using rotational kinetic energy \u2014 each revolution reinforces the next. Your life works the same way: action isn\'t consumption; action itself is charging. The more you spin, the steadier you get; the more you move, the faster you become. But physics tells us every rotating body has friction loss and needs regular \'bearing oil\'. So do you.`,ti:`Flywheel energy storage is a purely physical method \u2014 no chemical reactions, no compressed gas or liquid. The principle is simple: when power is plentiful, electricity drives a motor to spin the flywheel at high speed, converting electrical energy into rotational kinetic energy; when the system needs power, the flywheel\'s inertia keeps the rotor spinning, and the generator converts the kinetic energy back into electricity. The flywheel itself is the core component; to maximize stored energy, it\'s often made of lightweight high-strength materials like carbon fiber.<br><br>Flywheel storage breaks through the limits of chemical batteries using physics. It offers long lifespan, millions of charge/discharge cycles, fast response, high power density, and safety with no environmental pollution. It\'s especially suited for scenarios requiring short-duration, high-frequency, high-power charge/discharge \u2014 widely used in primary frequency regulation, railway energy recovery, and data-center UPS systems.`},
+"超导冰":{ne:"Superconductor Ice",fe:"Zero Energy Resistance Operator",te:"Superconducting Magnetic Energy Storage",qte:"The aloof ceiling of zero-loss.",pne:"Heat Gentleman",pde:"Your cold needs his heat to balance \u2014 a song of ice and fire.",p:`You, my friend, are that tech master in your friend circle who never likes posts but makes everyone\'s knees go weak the moment they speak. Your \'aloofness\' isn\'t an act \u2014 you must stay at low temperature to run with zero loss. You shrink your social surface to the minimum and concentrate all your power on the core goal.<br><br>You have zero tolerance for \'inefficiency\'. Watching others drag their feet, your inner feeling is basically \'why is this resistance so high\'. You pursue extreme rationality, dislike emotional expression, and speak so directly it can sting \u2014 but those who know you well understand: there\'s no malice, you\'re just too efficient to bother with polish.<br><br>Superconductivity only occurs at extremely low temperatures \u2014 which resembles those genius souls who can only bloom in solitude. You choose solitude not out of indifference, but because you know clearly: at room temperature you can be a good person, but only at low temperature can you be a superhuman. The \'low-temperature environment\' you build for yourself is precisely the precondition for your lossless operation.`,ti:`Superconducting magnetic energy storage (SMES) uses the zero-resistance property of superconducting materials to store electrical energy. The core principle: electrical energy is converted into magnetic field energy stored in a coil made of superconducting material. Because the coil\'s resistance is zero, current circulates without loss, so energy is preserved for a long time. When energy is needed, a power-electronics converter rapidly converts the magnetic field energy back into electricity. The system consists of the superconducting magnet, cryogenic cooling system, converter, and monitoring devices.<br><br>SMES is a typical power-type storage device with extremely fast response (milliseconds), high conversion efficiency (above 96%), and extremely high power density (10\u2074\u201310\u2075 kW/kg). With almost no energy loss, its lifespan is very long and maintenance is simple. However, maintaining the superconducting state requires continuous cryogenic cooling \u2014 the main reason for its high cost.`},
+"氢骑士":{ne:"Hydrogen Knight",fe:"Hydrogen Yield & Dispatch Rider",te:"Hydrogen Energy Storage",qte:"My quest spans seasons, not seconds.",pne:"Fusion Dreamer",pde:"The two of you together can talk about \'ultimate energy\' for three days straight \u2014 nobody else can get a word in.",p:`You\'re the \'ultimate idealist\' among new-energy personalities. Others look at the present; you look a hundred years ahead. Others ask \'will this project break even this quarter\'; you ask \'can this model change the energy structure of human civilization\'. You\'re the kind of person who starts working today because \'this matters to the planet fifty years from now\'.<br><br>You\'re not afraid of low efficiency, long roads, or delayed returns. Because you know \u2014 hydrogen is the most abundant element in the universe, and cross-seasonal storage is one of the ultimate solutions to the energy problem. You carry the romance of an old-school idealist: gentle, resolute, unhurried.<br><br>Hydrogen is the lightest element in the universe, yet it carries the heaviest mission. It can be stored for months without decay, crossing seasons to warm you. Your life creed: \'What matters isn\'t how much you have now, but how long it can last.\' Efficiency isn\'t your pursuit \u2014 sustainability is.`,ti:`Hydrogen storage is a new storage technology using hydrogen as the core energy carrier. In the narrow sense, it\'s based on the \'electricity\u2013hydrogen\u2013electricity\' process: first, surplus renewable electricity is used to electrolyze water, splitting it into hydrogen and oxygen; the hydrogen is compressed and stored in high-pressure tanks; when peak demand arrives, the stored hydrogen generates electricity through fuel cells or hydrogen turbines, converting chemical energy back into electricity.<br><br>Hydrogen storage\'s standout advantage is its extremely high energy density \u2014 over 100 times that of electrochemical storage. Storage duration can reach weeks or even months, making it ideal for cross-seasonal long-duration storage. The main challenge today is improving round-trip efficiency. The technology suits large-scale, long-cycle storage scenarios, especially for smoothing the seasonal fluctuations of wind and solar power.`},
+"钠么棒":{ne:"Sodium Ace",fe:"Sodium Operational Delivery Ace",te:"Sodium-Ion Battery",qte:"Ordinary but not mediocre; cheap but not cheap.",pne:"Lithium Dreamer",pde:"He drives the sports car; you drive the bus \u2014 together you keep the world moving.",p:`You\'re the most \'down-to-earth\' of the 16 personalities. You don\'t chase top-tier performance or flashy labels \u2014 you pursue: good enough, easy to use, affordable for everyone. You\'re the \'national sweetheart\' of the new-energy world \u2014 lithium batteries are the high-end sports car; you\'re the family e-bike in every household.<br><br>Your temperament is excellent: cold-resistant, heat-resistant, wide operating temperature range, never throws tantrums. You get along with anyone and never complain about material conditions. You have a \'wisdom that looks like foolishness\' \u2014 while others obsess over performance specs, you\'re thinking \'how to get more people to use it\'.<br><br>Sodium is the sixth most abundant element on Earth \u2014 it\'s everywhere in seawater. It reminds us that what truly changes the world is never the scarcest thing, but the most universally accessible thing. You don\'t need to be the person at the tip of the pyramid; you just need to let everyone at the base have a bit of light.`,ti:`Sodium-ion batteries work very similarly to lithium-ion batteries \u2014 both rely on ions intercalating and de-intercalating between electrodes to transfer charge, academically nicknamed the \'rocking-chair\' mechanism. The key difference: sodium-ion batteries use sodium ions instead of lithium ions as the charge carrier.<br><br>Sodium-ion batteries are called \'the best replacement for lithium batteries\'. Sodium is far more abundant and widely distributed than lithium, and cheaper. They\'re also more stable at high temperatures, with lower thermal-runaway risk. Mainstream sodium-ion cells deliver about 120\u2013160 Wh/kg \u2014 lower than lithium, but with extreme cost-effectiveness in scenarios where space and weight aren\'t critical. They suit e-bikes, low-speed vehicles, and large-scale wind/solar storage plants.`},
+"追风少年":{ne:"Wind Chaser",fe:"Wind Innovation Natural Driver",te:"Wind Power",qte:"Even when there\'s no wind, I\'m waiting for it to come.",pne:"Tide Watcher",pde:"He brings eternity and rhythm; you bring freedom and surprise.",p:`You\'re a born libertarian. Your life must be in \'open spaces\' \u2014 you can\'t stand cubicles, can\'t stand monotony, can\'t stand being trapped. You need wind, change, and the thrill of uncertainty.<br><br>You\'re so direct it\'s both lovable and infuriating: when you\'re in a good mood, your output explodes and everyone loves you; when there\'s no wind, you simply \'coast\' \u2014 \'don\'t rush me, I\'m waiting for the wind.\' You don\'t fake it, don\'t perform; your energy fluctuates with the weather, and precisely because of that, you\'re genuinely endearing.<br><br>Wind is air flowing from high pressure to low pressure \u2014 and so is your life: you always flow from \'oppression\' toward \'release\', from \'cramped\' toward \'open\'. You\'re not unstable \u2014 you\'re just too honest: when there\'s no energy, you choose not to fake it. The ones who pretend the wind never stops are the ones who tire out most.`,ti:`Wind power converts the kinetic energy of wind into electricity. When wind blows over the blades, the airfoil-shaped cross-section creates lift \u2014 just like an airplane wing \u2014 driving the rotor to spin. The rotor\'s torque is transmitted through the drivetrain to the generator. Taking an offshore turbine as an example: for every revolution of the blades, the internal gearbox spins the generator 150 times, boosting speed to about 1,500 rpm. The generator uses electromagnetic induction to convert mechanical energy into electricity, which is stepped up by transformers and fed into the grid.<br><br>Wind power has no direct emissions, short construction periods, and none of the reservoir-resettlement or geological issues of hydropower. Generally, level-4 winds and above can start generation, but turbines must shut down for protection in level-8 gales or stronger. From onshore wind farms to offshore wind, wind power has become a major part of global new installed capacity.`},
+"阳光收集者":{ne:"Sun Collector",fe:"Solar Utility Natural Navigator",te:"Solar PV",qte:"Wherever there\'s light, there I am.",pne:"Heat Gentleman",pde:"You turn light into electricity; he stores it as heat \u2014 two paths of \'using the sun\'.",p:`You are a gentle yet resolute presence. You don\'t need grand stages or dazzling backdrops \u2014 as long as light reaches you, you can work. You\'re the typical distributed-energy source \u2014 quietly appearing on rooftops across countless homes, never fighting for attention, yet always online.<br><br>Your personality is like sunlight itself: mild, even, impartial. You dislike conflict and hate stealing the spotlight, but you\'re not without principles \u2014 you only output the energy you truly have, never overdrawing. You believe in \'independence\' to the bone: if you can generate your own power, you\'ll never reach out to the grid.<br><br>The photovoltaic effect is a semiconductor\'s built-in electric field turning photons into electrons \u2014 and your life is the same: you excel at converting outside light (praise or doubt alike) into inner drive. You don\'t need strong light; you work even on cloudy days. You don\'t need to be seen, but you\'re always shining.`,ti:`Solar PV converts light energy directly into electricity via the \'photovoltaic effect\' at semiconductor junctions. The key component is the solar cell. When sunlight strikes the semiconductor PN junction, photons are absorbed and generate electron-hole pairs. Under the built-in electric field, electrons move to the N-region and holes to the P-region, making the P-side positive and the N-side negative \u2014 creating a photogenerated electromotive force across the junction: the photovoltaic effect.<br><br>PV converts light directly into electricity with no mechanical moving parts in between \u2014 the system is simple, reliable, and cheap to maintain. Solar resources are ubiquitous and inexhaustible, making PV one of the fastest-growing renewable generation technologies. From rooftop distributed PV to large ground-mounted plants, from off-grid power in remote areas to grid-connected urban generation, PV has permeated every layer of energy use.`},
+"热力绅士":{ne:"Heat Gentleman",fe:"Heat Energy Accumulation Transformer",te:"Concentrated Solar Power",qte:"Calm on the surface, boiling inside.",pne:"Superconductor Ice",pde:"Your heat needs his cold to balance \u2014 a match made in heaven.",p:`You\'re a \'reflective personality\' \u2014 you\'re not a light source, but you\'re brilliant at focusing others\' light onto yourself and converting it into your own heat. You have a charming capacity for \'delayed gratification\': store by day, release by night; calm on the surface, boiling within.<br><br>You appear mild-mannered and slow-paced, but only those closest to you know \u2014 deep inside, you maintain a steady 565 degrees Celsius. You stock up quietly when no one\'s watching, then release precisely when needed most. You\'re the type who \'keeps a low profile all year, then tops the performance rankings at the annual review\'.<br><br>The most fascinating thing about concentrated solar power is that it turns instantaneous sunlight into storable molten-salt heat. How much like life: those moments that are caught, after being simmered by time, will finally warm you through the night. You don\'t fail to shine \u2014 you\'re just one step slower than PV, but you walk one night further.`,ti:`CSP and PV both use solar energy but take completely different paths. CSP first uses mirrors to reflect and concentrate scattered sunlight onto a collector, converting it into high-temperature heat. In a tower plant, for example, thousands of heliostats track the sun and reflect sunlight onto a receiver atop the central tower. The concentrated high-energy radiation heats the molten salt flowing through the receiver to 290\u2013565\u00b0C. The hot salt flows into a hot-salt tank for storage; when the grid needs power, it exchanges heat with water to produce high-temperature, high-pressure steam that drives a turbine-generator set.<br><br>CSP\'s biggest advantage is its \'built-in storage\' \u2014 the molten-salt thermal storage lets the plant keep generating for hours without sunlight, greatly improving flexibility and reliability. China has built the world\'s largest molten-salt linear Fresnel CSP plant.`},
+"地心探险家":{ne:"Earth\'s Core Explorer",fe:"Deep Earth Energy Producer",te:"Geothermal Power",qte:"Those who root downward need not gaze at the sky.",pne:"Sun Collector",pde:"One from the heavens, one from the depths \u2014 the \'sky-earth\' duo.",p:`You\'re the most \'stable\' of the 16 personalities, no contest. You don\'t live off the sky or read people\'s faces \u2014 your energy comes from the Earth\'s core, from the never-cooling warmth deep underground. You feel weighty, reliable, silent but always online.<br><br>You dislike the noise of social media, dislike chasing trends and hot topics. You\'d rather go deeper \u2014 into the depths of knowledge, relationships, and your own heart. You believe all power comes from the bottom, not the surface. You\'re the team\'s \'trump card\' \u2014 unnoticed at ordinary times, but when the system hits a major fault, everyone says: \'Go ask them!\'<br><br>The Earth\'s internal heat comes from radioactive decay and primordial gravitational energy \u2014 the planet\'s most ancient energy. Your worldview is the same: the most reliable power comes from the deepest place.`,ti:`Geothermal power generation works on the same fundamental principle as thermal power \u2014 converting thermal energy into mechanical energy, then into electrical energy. The difference: thermal plants burn coal or gas to produce steam, while geothermal plants let the Earth itself play the role of \'boiler\' \u2014 using underground hot water and steam as the power source, drawn from geothermal wells to spin turbines and drive generators. There are three main technical routes: dry steam, flash steam, and binary cycle.<br><br>Geothermal energy is a renewable resource that\'s vast, steady, continuous, and carbon-free. It can generate power 24/7, unaffected by weather or environment, making it an ideal baseload power source \u2014 hailed as \'the clean energy treasure of the Earth\'s depths\'. 24 countries worldwide currently generate electricity from geothermal energy.`},
+"浪里白条":{ne:"White Wave Rider",fe:"Wave Amplitude Voltage Engineer",te:"Wave Energy",qte:"Life, after all, is about dancing in the waves.",pne:"Mountain of Stability",pde:"Your waves need his steadiness to balance \u2014 the perfect \'motion & stillness\'.",p:`You\'re an emotional powerhouse. Your energy is proportional to the \'wave height\' of your environment \u2014 the more turbulent the situation and the greater the challenge, the more excited you get. You\'re the one who, when a crisis hits and everyone\'s running away, charges in saying \'I\'ve got this\'.<br><br>You have a strong artistic temperament and an adventurous spirit. Big emotional swings are your trait and your talent \u2014 you don\'t pursue calm; you pursue amplitude big enough to matter. Your life creed: better to rise and fall dramatically than to stagnate in stillness. You draw energy from turbulence and hunt opportunity in uncertainty.<br><br>Wave energy is proportional to the square of wave height \u2014 which means the deeper your \'valleys\', the more energy you can release on the rebound. You\'re not emotionally unstable; you\'re just compressing every low point into a rebound spring.`,ti:`Wave energy is generated mainly by wind causing periodic horizontal movement of seawater. A wave\'s energy manifests as vertical displacement of the water body (potential energy) and horizontal flow (kinetic energy). Converting wave energy into electricity requires three stages: first, a capture device absorbs the wave energy; second, a transmission mechanism converts it into mechanical energy; third, a generator set converts it into electrical energy.<br><br>Wave energy\'s advantage lies in the stability and continuity of ocean wave motion. When wind and solar are unstable, wave energy can provide more reliable, steady supply. However, wave energy density is relatively low, with significant conversion losses. Wave energy can be used for power generation, pumping, heating, seawater desalination, and hydrogen production. China has built the world\'s first megawatt-class floating wave-energy device \u2014 hailed as a \'sea power bank\'.`},
+"潮汐守望者":{ne:"Tide Watcher",fe:"Tidal Induction Dynamic Engineer",te:"Tidal Power",qte:"I believe in the moon, and I believe in time.",pne:"Wind Chaser",pde:"His freedom needs your rhythm to balance; your rhythm needs his freedom to break \u2014 the best debate duo of \'order vs chaos\'.",p:`You\'re a \'fanatic devotee of order\'. You believe everything has patterns, that time will give answers, and that precise, predictable rhythm is the most reliable thing in the world. Before doing anything you make a plan, and before making a plan you consult the \'stars\' (data, logic, historical experience).<br><br>You dislike surprises, dislike uncertainty, dislike doing things \'by mood\'. You\'re the person who checks in at the same time every day, the one in the project group who \'always submits a day early\'. What you bring people isn\'t amazement \u2014 it\'s incomparable peace of mind.<br><br>Tidal energy is one of the earliest energies humans used \u2014 the ancients knew \'tides rise and fall; the moon waxes and wanes\'. Your worldview is the same: the most powerful forces often hide in the most regular cycles. No dramatic rises and falls, no theatrics \u2014 just like the moon pulling the tides, pushing the world forward day after day without fail.`,ti:`Tides are the periodic rise and fall of sea levels caused by the Earth\'s rotation combined with lunar gravity. Tidal power works similarly to conventional hydro \u2014 using water\'s potential energy. A barrage is built across a bay or tidal estuary to form a reservoir, with turbine-generator units placed in or beside the dam. At high tide, seawater flows into the reservoir and is stored as potential energy; at low tide, the stored water is released, and the head between high and low tide drives the turbines, spinning generators to produce electricity.<br><br>Tidal power\'s greatest advantage is stability and predictability. Tidal cycles are highly regular and can be forecast precisely \u2014 far superior to weather-dependent wind and solar. China\'s coastal regions boast abundant tidal resources, an important direction for blue-energy development.`},
+"生物炼金师":{ne:"Biomass Alchemist",fe:"Biomass Integrated Organic Maker",te:"Biomass Power",qte:"There\'s no such thing as waste \u2014 only treasures in the wrong place.",pne:"Superconductor Ice",pde:"One recycles and converts everything; one pursues zero-loss perfection \u2014 the \'zero-waste + zero-loss\' ceiling duo.",p:`You\'re the strongest \'social converter\' in the new-energy world. You have a magical ability: any \'trash\' that reaches your hands becomes a \'resource\' \u2014 others\' negative emotions become comfort, others\' awkward silences become jokes, others\' conflicts become reconciliation.<br><br>You\'re a true social butterfly \u2014 not the aloof kind, but the down-to-earth kind who can chat with anyone from any walk of life, full of the warmth of everyday life. You believe every person has \'calorific value\' and every relationship can \'burn to generate power\'. You\'re the \'psychological waste-treatment plant\' of your friend circle \u2014 everyone comes to you for \'conversion\'.<br><br>Biomass is essentially \'the biological storage of solar energy\' \u2014 plants turn sunlight into straw, and you turn straw into electricity. Your life mission is the same: to turn what others see as useless into useful light and heat.`,ti:`Plants are nature\'s \'solar power banks\' \u2014 through photosynthesis they convert solar energy into chemical energy stored in biomass. Biomass power releases that stored energy and converts it into usable electricity. The most common path is direct combustion: solid biomass like straw, wood chips, and municipal waste is fed into dedicated boilers and burned, producing high-temperature, high-pressure steam that drives turbine-generator sets. There are also gasification routes and anaerobic digestion routes \u2014 using organic waste to produce biogas and burning it to generate power.<br><br>Biomass power achieves \'turning waste into treasure\' \u2014 turning unwanted agricultural and forestry residues and municipal waste into valuable electricity. Biomass resources are widely available and inexhaustible, and the process is carbon-neutral. The technology suits rural areas rich in agricultural residues, municipal waste-treatment sites, and industrial parks.`},
+"核聚变梦想家":{ne:"Fusion Dreamer",fe:"Future Ultimate Synthetic Energy",te:"Nuclear Fusion Power",qte:"I want to build a sun right here on Earth!",pne:"Mountain of Stability",pde:"When you float to the edge of the universe, he\'s down there catching you; when he needs a little imagination, you draw him the entire galaxy.",p:`You\'re the \'craziest\' of the 16 \u2014 and by crazy I mean the kind closest to divinity. Your goals were never \'promotion and pay raise\' or \'financial freedom\' \u2014 your goal is: solve the fundamental energy problem of human civilization. You genuinely believe it can be done, and you\'re willing to spend your whole life on it.<br><br>You carry a charming \'irrational confidence\' \u2014 statistically, fusion is always \'50 years away\'; but by conviction, you feel \'it\'s almost here\'. You look down on small victories and don\'t dwell on present gains and losses. Your time scale is \'centuries\', your coordinate system is \'all humanity\'.<br><br>Fusion is two atomic nuclei overcoming enormous Coulomb repulsion to merge into a heavier nucleus \u2014 a process requiring temperatures of hundreds of millions of degrees. Your life is the same: you want to fuse people, ideas, and forces that once repelled each other, and burst into light that illuminates the world.`,ti:`Nuclear fusion is the process in which two light atomic nuclei combine into a heavier nucleus under extreme temperature and pressure, releasing enormous energy. This is the fundamental principle behind how the sun and other stars shine. Controlled fusion typically uses hydrogen isotopes \u2014 deuterium and tritium \u2014 as fuel. In magnetic-confinement devices like tokamaks, the fuel is heated to hundreds of millions of degrees, forming a plasma state, and fusion reactions occur under strong magnetic confinement.<br><br>Fusion\'s energy density is extreme \u2014 1 gram of deuterium-tritium fuel releases energy equivalent to burning 8 tons of oil. The deuterium fuel can be extracted from seawater, a nearly inexhaustible resource. Compared with current fission power, fusion produces no long-lived high-level radioactive waste and emits no CO\u2082 during operation. Controlled fusion is therefore regarded as the \'Holy Grail\' of human energy and the \'ultimate answer\' to the global energy crisis.`}
+};
 
 // ==================== 16种人格模板 ====================
 const personalities = [
@@ -749,17 +919,19 @@ function showResult() {
 // ==================== 渲染题目 ====================
 function renderQuestion(noScroll) {
     const q = questions[currentQuestion];
+    const eq = EN_QUESTIONS[currentQuestion] || {};
     const container = document.getElementById('questionContainer');
 
     let html = `<div class="question-card">
-        <span class="question-number">第 ${currentQuestion + 1} 题</span>
-        <div class="question-text">${q.q}</div>
+        <span class="question-number">${L('第 ' + (currentQuestion + 1) + ' 题', 'Question ' + (currentQuestion + 1))}</span>
+        <div class="question-text">${currentLang === 'en' ? (eq.q || q.q) : q.q}</div>
         <div class="options">`;
 
     q.opts.forEach((opt, i) => {
         const selected = answers[currentQuestion] === i ? 'selected' : '';
+        const optText = currentLang === 'en' ? (eq.opts ? eq.opts[i] : opt.t) : opt.t;
         html += `<div class="option-btn ${selected}" onclick="selectOption(${i})">
-            <span class="option-label">${opt.l}</span>${opt.t}
+            <span class="option-label">${opt.l}</span>${optText}
         </div>`;
     });
 
@@ -769,7 +941,7 @@ function renderQuestion(noScroll) {
     // 更新进度
     const progress = ((currentQuestion + 1) / 30) * 100;
     document.getElementById('progressFill').style.width = progress + '%';
-    document.getElementById('progressText').textContent = `第 ${currentQuestion + 1} 题 / 共 30 题`;
+    document.getElementById('progressText').textContent = L(`第 ${currentQuestion + 1} 题 / 共 30 题`, `Question ${currentQuestion + 1} of 30`);
 
     // 更新按钮状态
     updateNavButtons();
@@ -868,48 +1040,65 @@ function calculateResult() {
 }
 
 // ==================== 显示结果 ====================
-function displayResult(result) {
+function displayResult(result, noScroll) {
     const p = result.personality;
+    const ep = EN_PERSONALITIES[p.n] || {};
 
-    document.getElementById('resultName').textContent = p.n;
+    // 中文版：名称用中文；英文版：名称用英文
+    document.getElementById('resultName').textContent = L(p.n, ep.ne || p.n);
     document.getElementById('resultCode').textContent = p.c;
-    document.getElementById('resultFullname').innerHTML = p.fn.replace(' —— ', '<br>');
+    // 缩写全称：中文版保留"英文 —— 中文"；英文版只显示英文部分
+    document.getElementById('resultFullname').innerHTML = L(p.fn, ep.fe || p.fn.split(' —— ')[0]).replace(' —— ', '<br>');
     const campEl = document.getElementById('campBadge');
     if (p.camp === '储能') {
-        campEl.textContent = '储能型人格';
+        campEl.textContent = L('储能型人格', 'Storage Personality');
         campEl.className = 'camp-badge storage';
     } else {
-        campEl.textContent = '发电型人格';
+        campEl.textContent = L('发电型人格', 'Generation Personality');
         campEl.className = 'camp-badge generation';
     }
-    document.getElementById('resultTech').textContent = '对应技术：' + p.t;
-    document.getElementById('similarityBadge').textContent = '相似度 ' + result.similarity + '%';
-    document.getElementById('resultQuote').textContent = p.qt.replace(/[""''「」『』《》]/g, '');
+    document.getElementById('resultTech').textContent = L('对应技术：' + p.t, 'Technology: ' + (ep.te || p.t));
+    document.getElementById('similarityBadge').textContent = L('相似度 ' + result.similarity + '%', 'Similarity ' + result.similarity + '%');
+    document.getElementById('resultQuote').textContent = (L(p.qt, ep.qte || p.qt)).replace(/[""''「」『』《》]/g, '');
     const imgMap = {'超导冰': 'cdb.jpg', '潮汐守望者': 'cxswz.jpg', '地心探险家': 'dxtxj.jpg', '核聚变梦想家': 'hjbmxj.jpg', '空气炸锅': 'kqzg.jpg', '浪里白条': 'llbt.jpg', '锂想家': 'lxj.jpg', '钠么棒': 'nmb.jpg', '氢骑士': 'qqs.jpg', '热力绅士': 'rlss.jpg', '生物炼金师': 'swljs.jpg', '陀螺王': 'tlw.jpg', '稳如泰山': 'wrts.jpg', '阳光收集者': 'ygsjz.jpg', '液态侠': 'ytx.jpg', '追风少年': 'zfsn.jpg'};
     document.getElementById('resultImage').src = 'pictures/' + (imgMap[p.n] || '1.png');
-    document.getElementById('personalityDesc').innerHTML = p.p;
-    document.getElementById('techInfo').innerHTML = p.ti;
-    document.getElementById('partnerName').textContent = p.pn;
-    document.getElementById('partnerDesc').textContent = p.pd;
+    document.getElementById('personalityDesc').innerHTML = L(p.p, ep.p || p.p);
+    document.getElementById('techInfo').innerHTML = L(p.ti, ep.ti || p.ti);
+    document.getElementById('partnerName').textContent = L(p.pn, ep.pne || p.pn);
+    document.getElementById('partnerDesc').textContent = L(p.pd, ep.pde || p.pd);
 
     showDimensionScores(result.userVector, result.rawScores);
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!noScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ==================== 详细维度评分 ====================
 const DIM_FULL_INFO = {'model_names': ['能量倾向模型', '调节风格模型', '交互模式模型', '时间视野模型', '资源哲学模型'], 'model_questions': ['你的能量是向外释放还是向内保存？', '你如何应对外界变化和压力？', '你与世界如何互动？', '你看多远、走多快？', '你如何看待自己拥有的资源？'], 'dimensions': [[{'code': 'EO1', 'name': '输出倾向', 'L': '含蓄内敛', 'M': '适度表达', 'H': '热情外放'}, {'code': 'EO2', 'name': '影响半径', 'L': '关注自身', 'M': '关注身边', 'H': '关注世界'}, {'code': 'EO3', 'name': '能量密度', 'L': '细水长流', 'M': '张弛有度', 'H': '瞬间爆发'}], [{'code': 'RE1', 'name': '调峰能力', 'L': '随波逐流', 'M': '适度调节', 'H': '主动平衡'}, {'code': 'RE2', 'name': '转换效率', 'L': '重过程体验', 'M': '兼顾效率', 'H': '重结果效率'}, {'code': 'RE3', 'name': '稳定系数', 'L': '情绪波动', 'M': '有起有伏', 'H': '稳如磐石'}], [{'code': 'IM1', 'name': '主动-被动', 'L': '被动响应', 'M': '相机而动', 'H': '主动出击'}, {'code': 'IM2', 'name': '独立-依赖', 'L': '独立运作', 'M': '协同配合', 'H': '高度依赖'}, {'code': 'IM3', 'name': '界面友好度', 'L': '高冷封闭', 'M': '适度开放', 'H': '亲和透明'}], [{'code': 'TH1', 'name': '响应速度', 'L': '慢热深思', 'M': '适度节奏', 'H': '快速反应'}, {'code': 'TH2', 'name': '储能时长', 'L': '短期记忆', 'M': '中期规划', 'H': '长期主义'}, {'code': 'TH3', 'name': '未来愿景', 'L': '活在当下', 'M': '中期目标', 'H': '终极理想'}], [{'code': 'RP1', 'name': '资源态度', 'L': '取用不竭', 'M': '适度开发', 'H': '精打细算'}, {'code': 'RP2', 'name': '循环倾向', 'L': '线性消耗', 'M': '部分循环', 'H': '闭环永续'}, {'code': 'RP3', 'name': '风险偏好', 'L': '规避风险', 'M': '适度冒险', 'H': '拥抱未知'}]]};
 
+// 维度信息英文翻译
+const EN_DIM = {
+    model_names: ['Energy Orientation Model', 'Regulation Style Model', 'Interaction Mode Model', 'Time Horizon Model', 'Resource Philosophy Model'],
+    model_questions: ['Do you release your energy outward or conserve it inward?', 'How do you respond to external change and pressure?', 'How do you interact with the world?', 'How far do you look, how fast do you move?', 'How do you view the resources you have?'],
+    dimensions: [
+        [{name:'Expression Tendency',L:'Reserved and introverted',M:'Moderate expression',H:'Warm and outgoing'},{name:'Sphere of Influence',L:'Focus on self',M:'Focus on surroundings',H:'Focus on the world'},{name:'Energy Density',L:'Steady trickle',M:'Balanced rhythm',H:'Instant burst'}],
+        [{name:'Peak-Shaving Ability',L:'Go with the flow',M:'Moderate adjustment',H:'Proactive balancing'},{name:'Conversion Efficiency',L:'Value the process',M:'Balance process and result',H:'Result-driven'},{name:'Stability Factor',L:'Emotionally fluctuating',M:'Some ups and downs',H:'Rock-solid'}],
+        [{name:'Proactive-Passive',L:'Passive response',M:'Act on cues',H:'Proactive initiative'},{name:'Independent-Dependent',L:'Work independently',M:'Collaborate when needed',H:'Highly dependent'},{name:'Interface Friendliness',L:'Aloof and closed',M:'Moderately open',H:'Warm and transparent'}],
+        [{name:'Response Speed',L:'Slow and thoughtful',M:'Moderate pace',H:'Fast response'},{name:'Storage Duration',L:'Short-term focus',M:'Mid-term planning',H:'Long-term mindset'},{name:'Future Vision',L:'Live in the present',M:'Mid-term goals',H:'Ultimate ideals'}],
+        [{name:'Resource Attitude',L:'Endless consumption',M:'Moderate use',H:'Meticulous budgeting'},{name:'Recycling Tendency',L:'Linear consumption',M:'Partial recycling',H:'Closed-loop sustainability'},{name:'Risk Preference',L:'Risk-averse',M:'Moderate risk',H:'Embrace the unknown'}]
+    ]
+};
+
 function showDimensionScores(userVector, rawScores) {
     let html = '';
     const dimOrder = ['EO1','EO2','EO3','RE1','RE2','RE3','IM1','IM2','IM3','TH1','TH2','TH3','RP1','RP2','RP3'];
     const levelNames = {'L':'低(L)','M':'中(M)','H':'高(H)'};
+    const levelNamesEn = {'L':'Low (L)','M':'Medium (M)','H':'High (H)'};
     
     for (let mi = 0; mi < 5; mi++) {
         html += `<div style="margin-bottom:25px;padding:20px;background:#f8f9fa;border-radius:12px;border-left:4px solid #4CAF50;">
             <div style="margin-bottom:15px;">
-                <h4 style="color:#2E7D32;margin-bottom:4px;font-size:1.1rem;">模型${mi+1}：${DIM_FULL_INFO.model_names[mi]}</h4>
-                <div style="font-size:0.85rem;color:#666666;padding-left:4px;">${DIM_FULL_INFO.model_questions[mi]}</div>
+                <h4 style="color:#2E7D32;margin-bottom:4px;font-size:1.1rem;">${L('模型'+(mi+1)+'：'+DIM_FULL_INFO.model_names[mi], 'Model '+(mi+1)+': '+EN_DIM.model_names[mi])}</h4>
+                <div style="font-size:0.85rem;color:#666666;padding-left:4px;">${L(DIM_FULL_INFO.model_questions[mi], EN_DIM.model_questions[mi])}</div>
             </div>`;
         
         for (let di = 0; di < 3; di++) {
@@ -918,12 +1107,13 @@ function showDimensionScores(userVector, rawScores) {
             const level = userVector[dimIdx];
             const rawScore = rawScores ? rawScores[dimIdx] : '?';
             const info = DIM_FULL_INFO.dimensions[mi][di];
+            const einfo = EN_DIM.dimensions[mi][di];
             
             // 显示两道题的得分详情
             const q1Score = Math.min(rawScore, 2);  // 第一题得分 0/1/2
             const q2Score = Math.max(0, rawScore - 2);  // 第二题得分 0/1/2 (简化展示)
             // 更准确的方式：根据总分反推可能的组合
-            const scoreText = `${rawScore}/4分`;
+            const scoreText = L(`${rawScore}/4分`, `${rawScore}/4 pts`);
             
             // 得分条颜色
             let barColor = '#FFC107';  // 默认黄色(中等)
@@ -932,7 +1122,7 @@ function showDimensionScores(userVector, rawScores) {
             
             html += `<div style="margin:10px 0;padding:12px 15px;background:white;border-radius:8px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                    <div><strong>${dimCode} ${info.name}</strong> &nbsp; <span style="color:#666;font-size:0.9rem;">${levelNames[level]}</span></div>
+                    <div><strong>${dimCode} ${L(info.name, einfo.name)}</strong> &nbsp; <span style="color:#666;font-size:0.9rem;">${L(levelNames[level], levelNamesEn[level])}</span></div>
                     <div style="color:#1976D2;font-weight:700;font-size:1.05rem;">${scoreText}</div>
                 </div>
                 <div style="background:#e0e0e0;border-radius:4px;height:8px;overflow:hidden;">
@@ -1000,18 +1190,18 @@ function submitQuiz() {
             itemEl.classList.add('wrong');
         }
     }
-    if (!allAnswered) { alert('请先回答所有题目！'); return; }
+    if (!allAnswered) { alert(L('请先回答所有题目！', 'Please answer all questions first!')); return; }
 
     const resultEl = document.getElementById('quizResult');
     if (correctCount === 3) {
         galleryUnlocked = true;
         resultEl.className = 'quiz-result success show';
-        resultEl.innerHTML = '<div class="quiz-result-title">恭喜你，全部回答正确！</div>';
+        resultEl.innerHTML = '<div class="quiz-result-title">' + L('恭喜你，全部回答正确！', 'Congratulations! All answers correct!') + '</div>';
         renderPersonalityGallery();
     } else {
         galleryUnlocked = false;
         resultEl.className = 'quiz-result fail show';
-        resultEl.innerHTML = '<div class="quiz-result-title">很遗憾，未能答对所有题目，再试试吧~</div>';
+        resultEl.innerHTML = '<div class="quiz-result-title">' + L('很遗憾，未能答对所有题目，再试试吧~', 'Sorry, not all answers are correct. Try again~') + '</div>';
         document.getElementById('personalityGallery').className = 'personality-gallery';
     }
 }
@@ -1024,15 +1214,19 @@ function renderPersonalityGallery() {
     const generationP = personalities.filter(p => p.camp === '发电');
 
     let html = '';
-    html += '<div class="camp-label storage">储能型人格</div><div class="gallery-grid">';
+    html += '<div class="camp-label storage">' + L('储能型人格', 'Storage Personalities') + '</div><div class="gallery-grid">';
     storageP.forEach(p => {
-        html += `<div class="gallery-card"><img src="pictures/${imgMap[p.n]||'1.png'}" alt="${p.n}"><div class="gallery-card-name">${p.n}</div><div class="gallery-card-code">${p.c}</div></div>`;
+        const ep = EN_PERSONALITIES[p.n] || {};
+        const name = L(p.n, ep.ne || p.n);
+        html += `<div class="gallery-card"><img src="pictures/${imgMap[p.n]||'1.png'}" alt="${name}"><div class="gallery-card-name">${name}</div><div class="gallery-card-code">${p.c}</div></div>`;
     });
     html += '</div>';
 
-    html += '<div class="camp-label generation">发电型人格</div><div class="gallery-grid">';
+    html += '<div class="camp-label generation">' + L('发电型人格', 'Generation Personalities') + '</div><div class="gallery-grid">';
     generationP.forEach(p => {
-        html += `<div class="gallery-card"><img src="pictures/${imgMap[p.n]||'1.png'}" alt="${p.n}"><div class="gallery-card-name">${p.n}</div><div class="gallery-card-code">${p.c}</div></div>`;
+        const ep = EN_PERSONALITIES[p.n] || {};
+        const name = L(p.n, ep.ne || p.n);
+        html += `<div class="gallery-card"><img src="pictures/${imgMap[p.n]||'1.png'}" alt="${name}"><div class="gallery-card-name">${name}</div><div class="gallery-card-code">${p.c}</div></div>`;
     });
     html += '</div>';
 
@@ -1050,9 +1244,9 @@ let currentPersonality = null;
 
 // 在displayResult中保存当前人格数据供海报使用
 const _origDisplayResult = displayResult;
-displayResult = function(result) {
+displayResult = function(result, noScroll) {
     currentPersonality = result.personality;
-    _origDisplayResult(result);
+    _origDisplayResult(result, noScroll);
 };
 
 // roundRect polyfill (兼容旧浏览器)
@@ -1101,6 +1295,7 @@ function generatePoster() {
 
     // ═══ 新野兽派配色 ═══
     const isStorage = p.camp === '储能';
+    const ep = EN_PERSONALITIES[p.n] || {};
     const INK = '#111111';
     const YELLOW = '#FFEB3B';
     const PINK = '#FF6B9D';
@@ -1158,7 +1353,7 @@ function generatePoster() {
 
     // ═══ 标题块：黄底黑边硬阴影 ═══
     ctx.font = '800 22px "Microsoft YaHei", sans-serif';
-    const titleText = '你的 NETI 人格类型是';
+    const titleText = L('你的 NETI 人格类型是', 'Your NETI Personality Type Is');
     const tW = ctx.measureText(titleText).width + 44;
     const tX = (W - tW) / 2;
     const tY = 58;
@@ -1174,20 +1369,21 @@ function generatePoster() {
     ctx.textBaseline = 'middle';
     ctx.fillText(titleText, W / 2, tY + 24);
 
-    // ═══ 中文名：超大黑体 + 错位色块 + 硬阴影 ═══
+    // ═══ 人格名：超大黑体 + 错位色块 + 硬阴影（按语言取词）═══
+    const pName = L(p.n, ep.ne || p.n);
     ctx.font = '900 70px "Microsoft YaHei", sans-serif';
-    const nW = ctx.measureText(p.n).width;
+    const nW = ctx.measureText(pName).width;
     const nX = W / 2 - nW / 2;
     const nY = 142;
     ctx.fillStyle = ACCENT_LIGHT;
     ctx.fillRect(nX - 22, nY - 18, nW + 44, 106);
     ctx.fillStyle = INK;
-    ctx.fillText(p.n, W / 2 + 6, nY + 42);
+    ctx.fillText(pName, W / 2 + 6, nY + 42);
     ctx.fillStyle = '#FFF';
     ctx.strokeStyle = INK;
     ctx.lineWidth = 3;
-    ctx.strokeText(p.n, W / 2, nY + 36);
-    ctx.fillText(p.n, W / 2, nY + 36);
+    ctx.strokeText(pName, W / 2, nY + 36);
+    ctx.fillText(pName, W / 2, nY + 36);
 
     // ═══ 代码条：深色底白字 ═══
     ctx.font = '800 26px "Courier New", monospace';
@@ -1245,10 +1441,10 @@ function generatePoster() {
     const personalityImg = new Image();
     const imgUrl = 'pictures/' + (imgMap[p.n] || '1.png');
     const simEl = document.getElementById('similarityBadge');
-    const similarityText = simEl ? simEl.textContent : '相似度 --%';
-    const mottoText = p.qt ? p.qt.replace(/[""''「」『』《》]/g, '') : '';
-    const campText = p.camp === '储能' ? '储能型人格' : '发电型人格';
-    const techText = '对应技术：' + (p.t || '');
+    const similarityText = simEl ? simEl.textContent : L('相似度 --%', 'Similarity --%');
+    const mottoText = (L(p.qt, ep.qte || p.qt)).replace(/[""''「」『』《》]/g, '');
+    const campText = p.camp === '储能' ? L('储能型人格', 'Storage Personality') : L('发电型人格', 'Generation Personality');
+    const techText = L('对应技术：' + (p.t || ''), 'Technology: ' + (ep.te || p.t || ''));
 
     personalityImg.onload = function() {
         try {
@@ -1344,7 +1540,7 @@ function drawPosterLower(ctx, W, H, campText, campIsStorage, techText, similarit
     ctx.font = '800 20px "Microsoft YaHei", sans-serif';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('扫码参与测试', qrX - 14, qrAreaY + qrSize);
+    ctx.fillText(L('扫码参与测试', 'Scan to take the test'), qrX - 14, qrAreaY + qrSize);
 
     // 二维码图片（异步加载，失败不影响海报显示）
     const qrImg = new Image();
@@ -1451,6 +1647,9 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+// ==================== 语言初始化（含记忆恢复） ====================
+applyLang();
 </script>
 </body>
 </html>
