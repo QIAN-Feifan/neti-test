@@ -417,7 +417,7 @@
                     <p><strong>只要还在运转，你就已经为这个世界贡献了能量。</strong></p>
                     <p style="margin-top:20px;">愿你的能量，流向它该去的地方。</p>
                 </div>
-                <div class="letter-signature" data-i18n="letterSignature">—— NEA全体成员 敬上</div>
+                <div class="letter-signature" id="letterSignature" data-i18n-html="letterSignature">—— NEA全体成员 敬上</div>
             </div>
         </div>
 
@@ -520,7 +520,7 @@ const I18N_UI = {
     cardPartner: 'Best Partner Match',
     appendixToggle: ' A Note from the Author',
     letterTitle: 'Dear Fellow Energy Enthusiasts——',
-    letterSignature: '—— With best regards, All NEA Members',
+    letterSignature: 'With best regards,<br>All NEA Members',
     galleryToggle: 'Unlock the Full Personality Gallery',
     submitBtn: 'Submit',
     shareBtn: 'Share Result',
@@ -581,7 +581,7 @@ function applyLang() {
     const quizResult = document.getElementById('quizResult');
     if (quizResult && quizResult.classList.contains('show')) {
         if (quizResult.classList.contains('success')) {
-            quizResult.innerHTML = '<div class="quiz-result-title">' + (currentLang === 'zh' ? '恭喜你，全部回答正确！' : 'Congratulations! All answers correct!') + '</div>';
+            quizResult.innerHTML = '<div class="quiz-result-title">' + (currentLang === 'zh' ? '恭喜您，全部回答正确！' : 'Congratulations! All answers correct!') + '</div>';
             renderPersonalityGallery();
         } else {
             quizResult.innerHTML = '<div class="quiz-result-title">' + (currentLang === 'zh' ? '很遗憾，未能答对所有题目，再试试吧~' : 'Sorry, not all answers are correct. Try again~') + '</div>';
@@ -1198,7 +1198,7 @@ function submitQuiz() {
     if (correctCount === 3) {
         galleryUnlocked = true;
         resultEl.className = 'quiz-result success show';
-        resultEl.innerHTML = '<div class="quiz-result-title">' + L('恭喜你，全部回答正确！', 'Congratulations! All answers correct!') + '</div>';
+        resultEl.innerHTML = '<div class="quiz-result-title">' + L('恭喜您，全部回答正确！', 'Congratulations! All answers correct!') + '</div>';
         renderPersonalityGallery();
     } else {
         galleryUnlocked = false;
