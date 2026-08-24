@@ -175,6 +175,7 @@
         .appendix-content.show { display: block; }
         .letter-title { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; text-align: center; }
         .letter-content { font-size: 1.05rem; line-height: 2; color: var(--text); text-align: justify; }
+        .letter-content.en { text-align: left; }
         .letter-content p { margin-bottom: 1em; }
         .letter-content p:last-child { margin-bottom: 0; }
         .letter-signature { text-align: right; margin-top: 25px; font-style: italic; color: var(--text2); font-weight: 600; }
@@ -568,6 +569,7 @@ function applyLang() {
     if (letter) {
         if (!letter.dataset.zh) letter.dataset.zh = letter.innerHTML;
         letter.innerHTML = currentLang === 'en' ? I18N_UI.letterParas : letter.dataset.zh;
+        letter.classList.toggle('en', currentLang === 'en');
     }
     // 图鉴引导文字
     const gIntro = document.getElementById('galleryIntro');
